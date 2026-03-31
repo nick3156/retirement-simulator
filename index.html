@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>My Tools</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif;
+    background: #f8fafc;
+    color: #1e293b;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .container { max-width: 400px; width: 100%; }
+  h1 { text-align: center; font-size: 1.3rem; margin-bottom: 24px; color: #64748b; }
+  a.card {
+    display: block;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 16px;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  a.card:active { transform: scale(0.98); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
+  .card-desc { font-size: 0.85rem; color: #64748b; line-height: 1.5; }
+  .card-icon { font-size: 1.8rem; margin-bottom: 8px; }
+  .quiz .card-title { color: #2563eb; }
+  .retire .card-title { color: #059669; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>My Tools</h1>
+  <a class="card quiz" href="s-assess-quiz.html">
+    <div class="card-icon">&#x1F4DD;</div>
+    <div class="card-title">S&#12450;&#12475;&#12473;&#35430;&#39443; &#23550;&#31574;&#12463;&#12452;&#12474;</div>
+    <div class="card-desc">5&#25246;&#21839;&#38988; / &#28961;&#38480;&#20986;&#38988; / &#33510;&#25163;&#37325;&#28857;&#12514;&#12540;&#12489;</div>
+  </a>
+  <a class="card retire" href="retirement-simulator.html">
+    <div class="card-icon">&#x1F4B0;</div>
+    <div class="card-title">&#12522;&#12479;&#12452;&#12450;&#12471;&#12511;&#12517;&#12524;&#12540;&#12479;&#12540;</div>
+    <div class="card-desc">FIRE&#35336;&#30011; / &#36039;&#29987;&#25512;&#31227;&#12471;&#12511;&#12517;&#12524;&#12540;&#12471;&#12519;&#12531;</div>
+  </a>
+</div>
+</body>
+</html>
