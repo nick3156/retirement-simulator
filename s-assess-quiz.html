@@ -312,6 +312,59 @@
     text-overflow: ellipsis;
   }
 
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .stats-card {
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+  .stats-card .sc-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+  .stats-card .sc-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+  .cat-stats-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+  }
+  .cat-stats-row:last-child { border-bottom: none; }
+  .cat-bar {
+    width: 80px;
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-left: 8px;
+  }
+  .cat-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s;
+  }
+  .session-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .session-row:last-child { border-bottom: none; }
+
   @media (max-width: 480px) {
     .container { padding: 12px 10px; }
     .question-card { padding: 20px 16px; }
@@ -359,6 +412,15 @@
   <div class="history-panel" id="historyPanel" style="display:none;">
     <h3>直近の回答履歴</h3>
     <div id="historyList"></div>
+  </div>
+
+  <div class="history-panel" id="statsPanel" style="display:none;">
+    <h3>学習記録（累計）</h3>
+    <div id="statsContent"></div>
+    <div style="margin-top:16px;display:flex;gap:8px;">
+      <button class="next-btn" style="background:#64748b;flex:1;padding:10px;font-size:0.85rem;" onclick="exportStats()">結果をコピー</button>
+      <button class="next-btn" style="background:#dc2626;flex:1;padding:10px;font-size:0.85rem;" onclick="resetStats()">記録リセット</button>
+    </div>
   </div>
 </div>
 
@@ -2155,6 +2217,39 @@ const questions = [
 },
 ];
 
+// ===== LOCALSTORAGE PERSISTENCE =====
+const STORAGE_KEY = 's-assess-quiz-data';
+
+function loadSavedData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch(e) { return null; }
+}
+
+function saveData() {
+  const data = {
+    // Cumulative stats
+    totalAnswered: state.totalAnswered,
+    correctAnswered: state.correctAnswered,
+    wrongAnswered: state.wrongAnswered,
+    // Per-question history: questionIndex -> { attempts, correct, wrong, lastSeen }
+    questionStats: state.questionStats,
+    // Per-category stats
+    categoryStats: state.categoryStats,
+    // Session history
+    sessions: state.sessions,
+    // Wrong question indices for weak mode
+    wrongIndices: state.wrongQuestions.map(q => questions.indexOf(q)).filter(i => i >= 0),
+    // Last saved
+    lastSaved: new Date().toISOString()
+  };
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch(e) {}
+}
+
 // ===== APP STATE =====
 let state = {
   mode: 'random',
@@ -2167,16 +2262,38 @@ let state = {
   history: [],
   wrongQuestions: [],
   sequentialIndex: 0,
-  usedIndices: new Set()
+  usedIndices: new Set(),
+  questionStats: {},
+  categoryStats: {},
+  sessions: [],
+  currentSession: { started: new Date().toISOString(), answered: 0, correct: 0 }
 };
 
 // ===== CATEGORIES =====
 const categories = [...new Set(questions.map(q => q.category))];
 
 function init() {
-  // Init all categories as active
-  categories.forEach(c => state.activeCategories.add(c));
+  // Load saved data
+  const saved = loadSavedData();
+  if (saved) {
+    state.totalAnswered = saved.totalAnswered || 0;
+    state.correctAnswered = saved.correctAnswered || 0;
+    state.wrongAnswered = saved.wrongAnswered || 0;
+    state.questionStats = saved.questionStats || {};
+    state.categoryStats = saved.categoryStats || {};
+    state.sessions = saved.sessions || [];
+    state.wrongQuestions = (saved.wrongIndices || []).map(i => questions[i]).filter(Boolean);
+  }
+  // Init category stats
+  categories.forEach(c => {
+    state.activeCategories.add(c);
+    if (!state.categoryStats[c]) {
+      state.categoryStats[c] = { total: 0, correct: 0 };
+    }
+  });
   renderCategoryFilter();
+  updateStats();
+  renderStatsPanel();
   nextQuestion();
 }
 
@@ -2320,7 +2437,6 @@ function selectAnswer(idx) {
 
   if (isCorrect) {
     state.correctAnswered++;
-    // Remove from wrong questions if it was there
     state.wrongQuestions = state.wrongQuestions.filter(wq => wq !== q);
   } else {
     state.wrongAnswered++;
@@ -2328,6 +2444,26 @@ function selectAnswer(idx) {
       state.wrongQuestions.push(q);
     }
   }
+
+  // Track per-question stats
+  const qIdx = questions.indexOf(q);
+  if (!state.questionStats[qIdx]) {
+    state.questionStats[qIdx] = { attempts: 0, correct: 0, wrong: 0, lastSeen: null };
+  }
+  state.questionStats[qIdx].attempts++;
+  state.questionStats[qIdx][isCorrect ? 'correct' : 'wrong']++;
+  state.questionStats[qIdx].lastSeen = new Date().toISOString();
+
+  // Track per-category stats
+  if (!state.categoryStats[q.category]) {
+    state.categoryStats[q.category] = { total: 0, correct: 0 };
+  }
+  state.categoryStats[q.category].total++;
+  if (isCorrect) state.categoryStats[q.category].correct++;
+
+  // Track session
+  state.currentSession.answered++;
+  if (isCorrect) state.currentSession.correct++;
 
   // Style choices
   const labels = ['A', 'B', 'C', 'D', 'E'];
@@ -2368,6 +2504,10 @@ function selectAnswer(idx) {
   });
   if (state.history.length > 10) state.history.pop();
   renderHistory();
+  renderStatsPanel();
+
+  // Save to localStorage
+  saveData();
 }
 
 function updateStats() {
@@ -2396,6 +2536,146 @@ function renderHistory() {
     </div>
   `).join('');
 }
+
+function renderStatsPanel() {
+  const panel = document.getElementById('statsPanel');
+  const content = document.getElementById('statsContent');
+  if (state.totalAnswered === 0) {
+    panel.style.display = 'none';
+    return;
+  }
+  panel.style.display = 'block';
+
+  const acc = Math.round(state.correctAnswered / state.totalAnswered * 100);
+
+  // Count unique questions seen
+  const seen = Object.keys(state.questionStats).length;
+  const total = questions.length;
+
+  // Category breakdown
+  const catHTML = categories.map(c => {
+    const cs = state.categoryStats[c] || { total: 0, correct: 0 };
+    const catAcc = cs.total > 0 ? Math.round(cs.correct / cs.total * 100) : 0;
+    const barColor = catAcc >= 80 ? 'var(--correct)' : catAcc >= 50 ? '#f59e0b' : 'var(--wrong)';
+    const catQCount = questions.filter(q => q.category === c).length;
+    const catSeen = Object.entries(state.questionStats).filter(([idx]) => questions[idx] && questions[idx].category === c).length;
+    return `<div class="cat-stats-row">
+      <span style="flex:1;">${c}</span>
+      <span style="width:45px;text-align:right;font-weight:600;color:${barColor}">${catAcc}%</span>
+      <span style="width:55px;text-align:right;color:var(--muted);font-size:0.75rem;">${catSeen}/${catQCount}問</span>
+      <div class="cat-bar"><div class="cat-bar-fill" style="width:${catAcc}%;background:${barColor}"></div></div>
+    </div>`;
+  }).join('');
+
+  // Weak questions count
+  const weakCount = state.wrongQuestions.length;
+
+  // Sessions
+  const recentSessions = state.sessions.slice(-5).reverse();
+  const sessionHTML = recentSessions.length > 0 ? `
+    <div style="margin-top:12px;">
+      <div style="font-size:0.8rem;color:var(--muted);margin-bottom:6px;">過去のセッション</div>
+      ${recentSessions.map(s => {
+        const d = new Date(s.started);
+        const dateStr = (d.getMonth()+1) + '/' + d.getDate() + ' ' + d.getHours() + ':' + String(d.getMinutes()).padStart(2,'0');
+        const sAcc = s.answered > 0 ? Math.round(s.correct / s.answered * 100) : 0;
+        return `<div class="session-row">
+          <span>${dateStr}</span>
+          <span>${s.answered}問</span>
+          <span style="font-weight:600;color:${sAcc >= 80 ? 'var(--correct)' : sAcc >= 50 ? '#f59e0b' : 'var(--wrong)'}">${sAcc}%</span>
+        </div>`;
+      }).join('')}
+    </div>` : '';
+
+  content.innerHTML = `
+    <div class="stats-grid">
+      <div class="stats-card">
+        <div class="sc-label">累計出題</div>
+        <div class="sc-value">${state.totalAnswered}問</div>
+      </div>
+      <div class="stats-card">
+        <div class="sc-label">累計正答率</div>
+        <div class="sc-value" style="color:${acc >= 80 ? 'var(--correct)' : acc >= 50 ? '#f59e0b' : 'var(--wrong)'}">${acc}%</div>
+      </div>
+      <div class="stats-card">
+        <div class="sc-label">出題済み</div>
+        <div class="sc-value">${seen}/${total}問</div>
+      </div>
+      <div class="stats-card">
+        <div class="sc-label">苦手問題</div>
+        <div class="sc-value" style="color:${weakCount > 0 ? 'var(--wrong)' : 'var(--correct)'}">${weakCount}問</div>
+      </div>
+    </div>
+    <div style="font-size:0.8rem;color:var(--muted);margin-bottom:6px;">カテゴリ別正答率</div>
+    ${catHTML}
+    ${sessionHTML}
+  `;
+}
+
+function exportStats() {
+  const acc = state.totalAnswered > 0 ? Math.round(state.correctAnswered / state.totalAnswered * 100) : 0;
+  const lines = [
+    'Sアセス クイズ結果',
+    `日時: ${new Date().toLocaleString('ja-JP')}`,
+    `累計: ${state.totalAnswered}問 / 正答率: ${acc}%`,
+    `正解: ${state.correctAnswered} / 不正解: ${state.wrongAnswered}`,
+    '',
+    'カテゴリ別:'
+  ];
+  categories.forEach(c => {
+    const cs = state.categoryStats[c] || { total: 0, correct: 0 };
+    const catAcc = cs.total > 0 ? Math.round(cs.correct / cs.total * 100) : 0;
+    lines.push(`  ${c}: ${catAcc}% (${cs.correct}/${cs.total})`);
+  });
+  if (state.wrongQuestions.length > 0) {
+    lines.push('');
+    lines.push('苦手問題:');
+    state.wrongQuestions.forEach(q => {
+      lines.push(`  - ${q.question.substring(0, 50)}...`);
+    });
+  }
+  const text = lines.join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    alert('結果をクリップボードにコピーしました');
+  }).catch(() => {
+    // Fallback for older Safari
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    alert('結果をクリップボードにコピーしました');
+  });
+}
+
+function resetStats() {
+  if (!confirm('学習記録をすべてリセットしますか？')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  state.totalAnswered = 0;
+  state.correctAnswered = 0;
+  state.wrongAnswered = 0;
+  state.questionStats = {};
+  state.categoryStats = {};
+  state.sessions = [];
+  state.wrongQuestions = [];
+  state.history = [];
+  categories.forEach(c => {
+    state.categoryStats[c] = { total: 0, correct: 0 };
+  });
+  updateStats();
+  renderHistory();
+  renderStatsPanel();
+}
+
+// Save session on page unload
+window.addEventListener('beforeunload', function() {
+  if (state.currentSession.answered > 0) {
+    state.sessions.push(state.currentSession);
+    if (state.sessions.length > 20) state.sessions = state.sessions.slice(-20);
+    saveData();
+  }
+});
 
 // Initialize
 init();
