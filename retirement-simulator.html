@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>老後資金シミュレーター</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Kaku Gothic ProN', sans-serif;
+  background: #f5f5f7;
+  color: #1d1d1f;
+  line-height: 1.6;
+  padding: 0 0 60px;
+}
+.container { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+header {
+  text-align: center;
+  padding: 40px 20px 30px;
+}
+header h1 { font-size: 2rem; font-weight: 700; margin-bottom: 6px; }
+header p { color: #6e6e73; font-size: 1.05rem; }
+
+.card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  padding: 28px;
+  margin-bottom: 20px;
+}
+.card h2 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #1d1d1f;
+  border-bottom: 2px solid #f0f0f2;
+  padding-bottom: 10px;
+}
+
+.slider-group { margin-bottom: 22px; }
+.slider-group:last-child { margin-bottom: 0; }
+.slider-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+.slider-label .label-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.slider-value-input {
+  width: 100px;
+  text-align: right;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2563eb;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 4px 8px;
+  background: #f9fafb;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.slider-value-input:focus { border-color: #2563eb; }
+.unit { font-size: 0.9rem; color: #6e6e73; font-weight: 500; min-width: 24px; }
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: #e5e7eb;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: #2563eb;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(37,99,235,0.3);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: #2563eb;
+  cursor: pointer;
+  border: none;
+}
+
+.tab-toggle {
+  display: flex;
+  background: #e5e7eb;
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 24px;
+}
+.tab-btn {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s;
+  color: #6e6e73;
+}
+.tab-btn.active {
+  background: #fff;
+  color: #2563eb;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.target-input-section {
+  display: none;
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  background: #eff6ff;
+  border-radius: 12px;
+  border: 1.5px solid #bfdbfe;
+}
+.target-input-section.visible { display: block; }
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.metric-card {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 18px;
+  text-align: center;
+}
+.metric-card .label { font-size: 0.82rem; color: #6e6e73; margin-bottom: 6px; }
+.metric-card .value { font-size: 1.35rem; font-weight: 700; color: #1d1d1f; }
+.metric-card .sub { font-size: 0.78rem; color: #6e6e73; margin-top: 2px; }
+.metric-card.success { background: #ecfdf5; border: 1.5px solid #a7f3d0; }
+.metric-card.success .value { color: #10b981; }
+.metric-card.danger { background: #fef2f2; border: 1.5px solid #fecaca; }
+.metric-card.danger .value { color: #ef4444; }
+
+.chart-wrapper {
+  position: relative;
+  width: 100%;
+  margin-bottom: 24px;
+}
+canvas#chart {
+  width: 100%;
+  height: 420px;
+  display: block;
+}
+.chart-tooltip {
+  position: absolute;
+  background: rgba(0,0,0,0.82);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  pointer-events: none;
+  white-space: nowrap;
+  display: none;
+  z-index: 10;
+}
+.chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  font-size: 0.85rem;
+  color: #6e6e73;
+}
+.chart-legend span { display: flex; align-items: center; gap: 6px; }
+.legend-line {
+  display: inline-block;
+  width: 24px;
+  height: 3px;
+  border-radius: 2px;
+}
+.legend-dash {
+  display: inline-block;
+  width: 24px;
+  height: 0;
+  border-top: 2.5px dashed;
+}
+
+.data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.data-table th {
+  background: #f3f4f6;
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid #e5e7eb;
+}
+.data-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid #f0f0f2;
+}
+.data-table tr.green td { background: #f0fdf4; }
+.data-table tr.red td { background: #fef2f2; color: #ef4444; }
+
+.advanced-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #6e6e73;
+  margin-bottom: 16px;
+  user-select: none;
+}
+.advanced-toggle .arrow {
+  transition: transform 0.25s;
+  font-size: 0.8rem;
+}
+.advanced-toggle .arrow.open { transform: rotate(90deg); }
+.advanced-content { display: none; }
+.advanced-content.open { display: block; }
+
+.note {
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.82rem;
+  margin-top: 30px;
+  line-height: 1.7;
+}
+
+@media (max-width: 600px) {
+  header h1 { font-size: 1.5rem; }
+  .card { padding: 20px; }
+  .metrics { grid-template-columns: 1fr 1fr; }
+  canvas#chart { height: 300px; }
+  .slider-value-input { width: 80px; font-size: 0.9rem; }
+  .tab-btn { font-size: 0.85rem; padding: 10px 8px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>老後資金シミュレーター</h1>
+  <p>今の資産と積立で、リタイア後の生活は大丈夫？</p>
+</header>
+
+<div class="container">
+
+  <!-- あなたの情報 -->
+  <div class="card">
+    <h2>あなたの情報</h2>
+    <div class="slider-group">
+      <div class="slider-label">
+        <span>現在の年齢</span>
+        <div class="label-right"><input type="number" class="slider-value-input" id="currentAge_val" value="29" min="18" max="65"><span class="unit">歳</span></div>
+      </div>
+      <input type="range" id="currentAge" min="18" max="65" value="29" step="1">
+    </div>
+    <div class="slider-group">
+      <div class="slider-label">
+        <span>リタイア目標年齢</span>
+        <div class="label-right"><input type="number" class="slider-value-input" id="retireAge_val" value="65" min="35" max="75"><span class="unit">歳</span></div>
+      </div>
+      <input type="range" id="retireAge" min="35" max="75" value="65" step="1">
+    </div>
+  </div>
+
+  <!-- 今の資産 -->
+  <div class="card">
+    <h2>今の資産</h2>
+    <div class="slider-group">
+      <div class="slider-label">
+        <span>運用資産（投資）</span>
+        <div class="label-right"><input type="number" class="slider-value-input" id="investAssets_val" value="688" min="0" max="10000" step="10"><span class="unit">万円</span></div>
+      </div>
+      <input type="range" id="investAssets" min="0" max="10000" value="688" step="10">
+    </div>
+    <div class="slider-group">
+      <div class="slider-label">
+        <span>生活防衛資金（現金）</span>
+        <div class="label-right"><input type="number" class="slider-value-input" id="cashReserve_val" value="182" min="0" max="2000" step="10"><span class="unit">万円</span></div>
+      </div>
+      <input type="range" id="cashReserve" min="0" max="2000" value="182" step="10">
+    </div>
+  </div>
+
+  <!-- 毎月のお金 -->
+  <div class="card">
+    <h2>毎月のお金</h2>
+    <div class="slider-group">
+      <div class="slider-label">
+        <span>毎月の積立額</span>
+        <div class="label-right"><input type="number" class="slider-value-input" id="monthlyContrib_val" value="5" min="0" max="50" step="0.5"><span class="unit">万円</span></div>
+      </div>
+      <input type="range" id="monthlyContrib" min="0" max="50" value="5" step="0.5">
+    </div>
+    <div class="slider-group">
+      <div class="slider-label">
+        <span>現在の月の生活費</span>
+        <div class="label-right"><input type="number" class="slider-value-input" id="monthlyExpense_val" value="25" min="10" max="80" step="1"><span class="unit">万円</span></div>
+      </div>
+      <input type="range" id="monthlyExpense" min="10" max="80" value="25" step="1">
+    </div>
+  </div>
+
+  <!-- 運用 -->
+  <div class="card">
+    <h2>運用</h2>
+    <div class="slider-group">
+      <div class="slider-label">
+        <span>想定利回り（年）</span>
+        <div class="label-right"><input type="number" class="slider-value-input" id="returnRate_val" value="5" min="1" max="12" step="0.5"><span class="unit">%</span></div>
+      </div>
+      <input type="range" id="returnRate" min="1" max="12" value="5" step="0.5">
+    </div>
+  </div>
+
+  <!-- 詳細設定 -->
+  <div class="card">
+    <div class="advanced-toggle" onclick="toggleAdvanced()">
+      <span class="arrow" id="advArrow">&#9654;</span>
+      <span>詳細設定（一般的な数値を設定済み）</span>
+    </div>
+    <div class="advanced-content" id="advContent">
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>インフレ率</span>
+          <div class="label-right"><input type="number" class="slider-value-input" id="inflation_val" value="2" min="0" max="5" step="0.5"><span class="unit">%</span></div>
+        </div>
+        <input type="range" id="inflation" min="0" max="5" value="2" step="0.5">
+      </div>
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>年金受給額（月/手取り）</span>
+          <div class="label-right"><input type="number" class="slider-value-input" id="pension_val" value="13" min="0" max="30" step="0.5"><span class="unit">万円</span></div>
+        </div>
+        <input type="range" id="pension" min="0" max="30" value="13" step="0.5">
+      </div>
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>年金受給開始年齢</span>
+          <div class="label-right"><input type="number" class="slider-value-input" id="pensionAge_val" value="65" min="60" max="75" step="1"><span class="unit">歳</span></div>
+        </div>
+        <input type="range" id="pensionAge" min="60" max="75" value="65" step="1">
+      </div>
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>想定寿命</span>
+          <div class="label-right"><input type="number" class="slider-value-input" id="lifeExpect_val" value="95" min="80" max="105" step="1"><span class="unit">歳</span></div>
+        </div>
+        <input type="range" id="lifeExpect" min="80" max="105" value="95" step="1">
+      </div>
+      <p style="font-size:0.82rem;color:#9ca3af;margin-top:14px;">※ 医療費・介護費等は生活費に含まれる想定です</p>
+    </div>
+  </div>
+
+  <!-- 結果 -->
+  <div class="card" id="resultsCard">
+    <div class="tab-toggle">
+      <button class="tab-btn active" id="tab1btn" onclick="setTab(1)">今の積立で大丈夫？</button>
+      <button class="tab-btn" id="tab2btn" onclick="setTab(2)">目標から逆算</button>
+    </div>
+
+    <div class="target-input-section" id="targetSection">
+      <div class="slider-group">
+        <div class="slider-label">
+          <span>目標資産額</span>
+          <div class="label-right"><input type="number" class="slider-value-input" id="targetAsset_val" value="6000" min="1000" max="30000" step="100"><span class="unit">万円</span></div>
+        </div>
+        <input type="range" id="targetAsset" min="1000" max="30000" value="6000" step="100">
+      </div>
+    </div>
+
+    <div class="metrics" id="metricsArea"></div>
+
+    <div class="chart-legend" id="chartLegend"></div>
+
+    <div class="chart-wrapper">
+      <canvas id="chart"></canvas>
+      <div class="chart-tooltip" id="tooltip"></div>
+    </div>
+
+    <table class="data-table" id="dataTable">
+      <thead><tr><th>年齢</th><th>運用資産</th><th>備考</th></tr></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <p class="note">
+    ※ シミュレーション結果は概算です。4%ルールは過去の実績に基づく目安であり、将来のリターンを保証するものではありません。
+  </p>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  let activeTab = 1;
+  let animFrame = null;
+
+  // Bind sliders and number inputs
+  const fields = [
+    'currentAge','retireAge','investAssets','cashReserve',
+    'monthlyContrib','monthlyExpense','returnRate',
+    'inflation','pension','pensionAge','lifeExpect','targetAsset'
+  ];
+
+  fields.forEach(id => {
+    const slider = document.getElementById(id);
+    const input = document.getElementById(id + '_val');
+    if (!slider || !input) return;
+    slider.addEventListener('input', () => {
+      input.value = slider.value;
+      scheduleUpdate();
+    });
+    input.addEventListener('input', () => {
+      let v = parseFloat(input.value);
+      if (!isNaN(v)) {
+        v = Math.max(parseFloat(slider.min), Math.min(parseFloat(slider.max), v));
+        slider.value = v;
+      }
+      scheduleUpdate();
+    });
+    input.addEventListener('change', () => {
+      let v = parseFloat(input.value);
+      if (isNaN(v)) v = parseFloat(slider.value);
+      v = Math.max(parseFloat(slider.min), Math.min(parseFloat(slider.max), v));
+      input.value = v;
+      slider.value = v;
+      scheduleUpdate();
+    });
+  });
+
+  function getVal(id) { return parseFloat(document.getElementById(id).value) || 0; }
+
+  window.toggleAdvanced = function() {
+    document.getElementById('advContent').classList.toggle('open');
+    document.getElementById('advArrow').classList.toggle('open');
+  };
+
+  window.setTab = function(t) {
+    activeTab = t;
+    document.getElementById('tab1btn').classList.toggle('active', t === 1);
+    document.getElementById('tab2btn').classList.toggle('active', t === 2);
+    document.getElementById('targetSection').classList.toggle('visible', t === 2);
+    scheduleUpdate();
+  };
+
+  function scheduleUpdate() {
+    if (animFrame) cancelAnimationFrame(animFrame);
+    animFrame = requestAnimationFrame(runSimulation);
+  }
+
+  function fmt(n) {
+    if (n === undefined || n === null || isNaN(n)) return '0';
+    const rounded = Math.round(n);
+    if (rounded < 0) return '-' + Math.abs(rounded).toLocaleString('ja-JP');
+    return rounded.toLocaleString('ja-JP');
+  }
+
+  // Year-by-year simulation
+  function simulate(initialAssets, monthlyContrib, returnRate, monthlyExpense, inflation, pensionMonthly, pensionAge, currentAge, retireAge, lifeExpect) {
+    const data = [];
+    let assets = initialAssets;
+    const pensionAnnual = pensionMonthly * 12;
+
+    for (let age = currentAge; age <= lifeExpect; age++) {
+      data.push({ age, assets: Math.round(assets * 10) / 10 });
+
+      if (age < retireAge) {
+        // Working: grow then add contributions
+        assets *= (1 + returnRate);
+        assets += monthlyContrib * 12;
+      } else {
+        // Retired: withdraw living expenses (inflated) minus pension, then grow remainder
+        const inflatedAnnualExp = monthlyExpense * 12 * Math.pow(1 + inflation, age - currentAge);
+        const penInc = (age >= pensionAge) ? pensionAnnual : 0;
+        const needed = Math.max(0, inflatedAnnualExp - penInc);
+        assets -= needed;
+        assets *= (1 + returnRate);
+      }
+    }
+    return data;
+  }
+
+  function runSimulation() {
+    const currentAge = Math.round(getVal('currentAge'));
+    const retireAge = Math.max(currentAge + 1, Math.round(getVal('retireAge')));
+    const investAssets0 = getVal('investAssets');
+    const cashReserve = getVal('cashReserve');
+    const monthlyContrib = getVal('monthlyContrib');
+    const monthlyExpense = getVal('monthlyExpense');
+    const returnRate = getVal('returnRate') / 100;
+    const inflation = getVal('inflation') / 100;
+    const pensionMonthly = getVal('pension');
+    const pensionAge = Math.round(getVal('pensionAge'));
+    const lifeExpect = Math.round(getVal('lifeExpect'));
+    const targetAsset = getVal('targetAsset');
+
+    // FIRE line calculation
+    const yearsToRetire = retireAge - currentAge;
+    const inflatedAnnualAtRetire = monthlyExpense * 12 * Math.pow(1 + inflation, yearsToRetire);
+    const pensionAnnual = pensionMonthly * 12;
+    // For FIRE line, consider pension only if pension starts at or before retirement
+    const pensionAtRetire = (retireAge >= pensionAge) ? pensionAnnual : 0;
+    const netNeedAtRetire = Math.max(0, inflatedAnnualAtRetire - pensionAtRetire);
+    const fireLine = netNeedAtRetire / 0.04;
+
+    // Main simulation
+    const mainData = simulate(investAssets0, monthlyContrib, returnRate, monthlyExpense, inflation, pensionMonthly, pensionAge, currentAge, retireAge, lifeExpect);
+
+    // Reverse calculation (Tab 2)
+    let requiredMonthly = 0;
+    let reverseData = null;
+    if (activeTab === 2) {
+      const mr = returnRate / 12;
+      const months = yearsToRetire * 12;
+      if (months <= 0) {
+        requiredMonthly = 0;
+      } else if (mr === 0) {
+        requiredMonthly = Math.max(0, (targetAsset - investAssets0) / months);
+      } else {
+        const fvCurrent = investAssets0 * Math.pow(1 + mr, months);
+        const pmt = (targetAsset - fvCurrent) * mr / (Math.pow(1 + mr, months) - 1);
+        requiredMonthly = Math.max(0, pmt);
+      }
+      reverseData = simulate(investAssets0, requiredMonthly, returnRate, monthlyExpense, inflation, pensionMonthly, pensionAge, currentAge, retireAge, lifeExpect);
+    }
+
+    // Retirement assets from main sim
+    const retireEntry = mainData.find(d => d.age === retireAge);
+    const retireAssets = retireEntry ? retireEntry.assets : 0;
+    const withdrawal4pct = retireAssets * 0.04;
+    // FIRE判定: 想定寿命まで資産が0を下回らないか
+    const depleteAge = mainData.find(d => d.age > retireAge && d.assets < 0);
+    const canFire = !depleteAge;
+
+    renderMetrics(retireAssets, withdrawal4pct, inflatedAnnualAtRetire, canFire, fireLine, requiredMonthly, targetAsset, depleteAge);
+    renderLegend(reverseData !== null);
+    renderChart(mainData, reverseData, currentAge, retireAge, lifeExpect, cashReserve, fireLine);
+    renderTable(mainData, currentAge, retireAge, lifeExpect, fireLine);
+  }
+
+  function renderMetrics(retireAssets, withdrawal, inflatedExp, canFire, fireLine, reqMonthly, target, depleteAge) {
+    const area = document.getElementById('metricsArea');
+    let html = '';
+
+    if (activeTab === 1) {
+      const shortfall = Math.round(fireLine - retireAssets);
+      html += metricCard('リタイア時の運用資産', fmt(retireAssets) + '万円');
+      html += metricCard('年間取り崩し額(4%)', fmt(Math.round(withdrawal)) + '万円/年');
+      html += metricCard('年間生活費(リタイア時)', fmt(Math.round(inflatedExp)) + '万円/年');
+      if (canFire) {
+        html += '<div class="metric-card success"><div class="label">判定</div><div class="value">' + Math.round(getVal('lifeExpect')) + '歳まで安心!</div></div>';
+      } else {
+        html += '<div class="metric-card danger"><div class="label">判定</div><div class="value">' + depleteAge.age + '歳で資金枯渇</div></div>';
+      }
+    } else {
+      const rev4pct = target * 0.04;
+      const covers = rev4pct >= inflatedExp;
+      html += metricCard('目標資産額', fmt(target) + '万円');
+      html += metricCard('必要な毎月積立額', (Math.round(reqMonthly * 10) / 10).toLocaleString('ja-JP') + '万円');
+      html += metricCard('達成時の取り崩し(4%)', fmt(Math.round(rev4pct)) + '万円/年');
+      if (covers) {
+        html += '<div class="metric-card success"><div class="label">判定</div><div class="value">生活費をカバー可能</div></div>';
+      } else {
+        html += '<div class="metric-card danger"><div class="label">判定</div><div class="value">生活費に対して不足</div></div>';
+      }
+    }
+    area.innerHTML = html;
+  }
+
+  function metricCard(label, value) {
+    return '<div class="metric-card"><div class="label">' + label + '</div><div class="value">' + value + '</div></div>';
+  }
+
+  function renderLegend(hasReverse) {
+    const el = document.getElementById('chartLegend');
+    let html = '<span><span class="legend-line" style="background:#2563eb"></span>運用資産</span>';
+    html += '<span><span class="legend-dash" style="border-color:#fb923c"></span>生活防衛資金</span>';
+    html += '<span><span class="legend-dash" style="border-color:#f59e0b"></span>FIRE達成ライン</span>';
+    if (hasReverse) {
+      html += '<span><span class="legend-dash" style="border-color:#10b981"></span>必要積立での推移</span>';
+    }
+    el.innerHTML = html;
+  }
+
+  // Chart rendering
+  function renderChart(data, reverseData, currentAge, retireAge, lifeExpect, cashReserve, fireLine) {
+    const canvas = document.getElementById('chart');
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    const W = rect.width, H = rect.height;
+
+    const pad = { top: 44, right: 30, bottom: 50, left: 72 };
+    const gW = W - pad.left - pad.right;
+    const gH = H - pad.top - pad.bottom;
+
+    // Compute range
+    const allValues = data.map(d => d.assets);
+    if (reverseData) reverseData.forEach(d => allValues.push(d.assets));
+    allValues.push(cashReserve, fireLine, 0);
+    let maxY = Math.max(...allValues) * 1.12;
+    let minY = Math.min(0, ...allValues);
+    if (minY < 0) minY *= 1.1;
+    if (maxY <= minY) maxY = minY + 1000;
+
+    const xScale = age => pad.left + ((age - currentAge) / (lifeExpect - currentAge)) * gW;
+    const yScale = v => pad.top + gH - ((v - minY) / (maxY - minY)) * gH;
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Y grid lines
+    ctx.strokeStyle = '#e5e7eb';
+    ctx.lineWidth = 0.5;
+    const yTicks = niceSteps(minY, maxY, 6);
+    ctx.font = '11px -apple-system, sans-serif';
+    ctx.textAlign = 'right';
+    yTicks.forEach(v => {
+      const y = yScale(v);
+      ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
+      ctx.fillStyle = '#9ca3af';
+      ctx.fillText(fmt(v) + '万', pad.left - 8, y + 4);
+    });
+
+    // X grid lines every 5 years
+    ctx.textAlign = 'center';
+    for (let age = Math.ceil(currentAge / 5) * 5; age <= lifeExpect; age += 5) {
+      const x = xScale(age);
+      ctx.strokeStyle = '#e5e7eb';
+      ctx.lineWidth = 0.5;
+      ctx.beginPath(); ctx.moveTo(x, pad.top); ctx.lineTo(x, pad.top + gH); ctx.stroke();
+      ctx.fillStyle = '#9ca3af';
+      ctx.fillText(age + '歳', x, pad.top + gH + 22);
+    }
+
+    // Zero line if needed
+    if (minY < 0) {
+      ctx.strokeStyle = '#d1d5db';
+      ctx.lineWidth = 1;
+      const zy = yScale(0);
+      ctx.beginPath(); ctx.moveTo(pad.left, zy); ctx.lineTo(W - pad.right, zy); ctx.stroke();
+    }
+
+    // FIRE line
+    ctx.save();
+    ctx.setLineDash([7, 5]);
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 2;
+    const fireY = yScale(fireLine);
+    ctx.beginPath(); ctx.moveTo(pad.left, fireY); ctx.lineTo(W - pad.right, fireY); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#f59e0b';
+    ctx.font = 'bold 11px -apple-system, sans-serif';
+    ctx.textAlign = 'left';
+    if (fireY > pad.top + 20) {
+      ctx.fillText('FIRE達成ライン ' + fmt(fireLine) + '万', pad.left + 6, fireY - 8);
+    }
+    ctx.restore();
+
+    // Cash reserve line
+    ctx.save();
+    ctx.setLineDash([4, 4]);
+    ctx.strokeStyle = '#fb923c';
+    ctx.lineWidth = 1.5;
+    const cashY = yScale(cashReserve);
+    ctx.beginPath(); ctx.moveTo(pad.left, cashY); ctx.lineTo(W - pad.right, cashY); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#fb923c';
+    ctx.font = '10px -apple-system, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText('生活防衛資金 ' + fmt(cashReserve) + '万', W - pad.right - 6, cashY - 6);
+    ctx.restore();
+
+    // Retirement vertical line
+    ctx.save();
+    ctx.setLineDash([7, 5]);
+    ctx.strokeStyle = '#6b7280';
+    ctx.lineWidth = 1.5;
+    const retX = xScale(retireAge);
+    ctx.beginPath(); ctx.moveTo(retX, pad.top); ctx.lineTo(retX, pad.top + gH); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#6b7280';
+    ctx.font = 'bold 11px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('リタイア', retX, pad.top - 10);
+    ctx.restore();
+
+    // Reverse data line (Tab 2)
+    if (reverseData) {
+      drawLine(ctx, reverseData, xScale, yScale, '#10b981', 2.5, [7, 4]);
+    }
+
+    // Fill under main line
+    ctx.save();
+    ctx.globalAlpha = 0.06;
+    ctx.beginPath();
+    data.forEach((d, i) => {
+      const x = xScale(d.age), y = yScale(d.assets);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.lineTo(xScale(data[data.length - 1].age), yScale(0));
+    ctx.lineTo(xScale(data[0].age), yScale(0));
+    ctx.closePath();
+    ctx.fillStyle = '#2563eb';
+    ctx.fill();
+    ctx.restore();
+
+    // Main line
+    drawLine(ctx, data, xScale, yScale, '#2563eb', 2.5, []);
+
+    // Dot and label at retirement
+    const retEntry = data.find(d => d.age === retireAge);
+    if (retEntry) {
+      drawDot(ctx, xScale(retireAge), yScale(retEntry.assets), '#2563eb');
+      ctx.fillStyle = '#1d1d1f';
+      ctx.font = 'bold 11px -apple-system, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(fmt(retEntry.assets) + '万', xScale(retireAge) + 10, yScale(retEntry.assets) - 10);
+    }
+
+    // Mark FIRE crossing
+    for (let i = 1; i < data.length; i++) {
+      if (data[i - 1].assets < fireLine && data[i].assets >= fireLine) {
+        drawDot(ctx, xScale(data[i].age), yScale(data[i].assets), '#f59e0b');
+        ctx.fillStyle = '#f59e0b';
+        ctx.font = 'bold 10px -apple-system, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(data[i].age + '歳で達成', xScale(data[i].age), yScale(data[i].assets) - 14);
+        break;
+      }
+    }
+
+    // Hover tooltip
+    canvas.onmousemove = function(e) {
+      const tooltip = document.getElementById('tooltip');
+      const bRect = canvas.getBoundingClientRect();
+      const mx = e.clientX - bRect.left;
+      const ageFloat = currentAge + (mx - pad.left) / gW * (lifeExpect - currentAge);
+      const age = Math.round(ageFloat);
+      const dp = data.find(d => d.age === age);
+      if (dp && mx >= pad.left && mx <= W - pad.right) {
+        let ttX = xScale(age) + 14;
+        if (ttX + 140 > W) ttX = xScale(age) - 150;
+        tooltip.style.display = 'block';
+        tooltip.style.left = ttX + 'px';
+        tooltip.style.top = (yScale(dp.assets) - 32) + 'px';
+        let text = dp.age + '歳: ' + fmt(dp.assets) + '万円';
+        if (reverseData) {
+          const rdp = reverseData.find(d => d.age === age);
+          if (rdp) text += ' / 逆算: ' + fmt(rdp.assets) + '万円';
+        }
+        tooltip.textContent = text;
+      } else {
+        tooltip.style.display = 'none';
+      }
+    };
+    canvas.onmouseleave = function() {
+      document.getElementById('tooltip').style.display = 'none';
+    };
+
+    // Touch support
+    canvas.ontouchmove = function(e) {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const bRect = canvas.getBoundingClientRect();
+      const mx = touch.clientX - bRect.left;
+      const tooltip = document.getElementById('tooltip');
+      const ageFloat = currentAge + (mx - pad.left) / gW * (lifeExpect - currentAge);
+      const age = Math.round(ageFloat);
+      const dp = data.find(d => d.age === age);
+      if (dp && mx >= pad.left && mx <= W - pad.right) {
+        tooltip.style.display = 'block';
+        tooltip.style.left = (xScale(age) + 14) + 'px';
+        tooltip.style.top = (yScale(dp.assets) - 32) + 'px';
+        tooltip.textContent = dp.age + '歳: ' + fmt(dp.assets) + '万円';
+      } else {
+        tooltip.style.display = 'none';
+      }
+    };
+    canvas.ontouchend = function() {
+      document.getElementById('tooltip').style.display = 'none';
+    };
+  }
+
+  function drawLine(ctx, data, xScale, yScale, color, width, dash) {
+    ctx.save();
+    ctx.setLineDash(dash);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    data.forEach((d, i) => {
+      const x = xScale(d.age), y = yScale(d.assets);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawDot(ctx, x, y, color) {
+    ctx.beginPath();
+    ctx.arc(x, y, 5, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  function niceSteps(min, max, count) {
+    const range = max - min;
+    if (range <= 0) return [0];
+    const rough = range / count;
+    const mag = Math.pow(10, Math.floor(Math.log10(rough)));
+    let step = mag;
+    if (rough / mag >= 5) step = mag * 5;
+    else if (rough / mag >= 2) step = mag * 2;
+    const start = Math.ceil(min / step) * step;
+    const ticks = [];
+    for (let v = start; v <= max + step * 0.01; v += step) {
+      ticks.push(Math.round(v * 100) / 100);
+      if (ticks.length > 20) break;
+    }
+    return ticks;
+  }
+
+  function renderTable(data, currentAge, retireAge, lifeExpect, fireLine) {
+    const tbody = document.getElementById('tableBody');
+    const showAges = new Set();
+
+    // Every 5 years
+    for (let a = Math.ceil((currentAge + 1) / 5) * 5; a <= lifeExpect; a += 5) {
+      showAges.add(a);
+    }
+    showAges.add(retireAge);
+    // Always show last age
+    showAges.add(lifeExpect);
+
+    const sorted = Array.from(showAges).sort((a, b) => a - b);
+    let html = '';
+
+    sorted.forEach(age => {
+      const dp = data.find(d => d.age === age);
+      if (!dp) return;
+      const cls = dp.assets >= fireLine ? 'green' : dp.assets < 0 ? 'red' : '';
+      let note = '';
+      if (age === retireAge) note = '← ここからの取り崩し';
+      if (dp.assets < 0) note = '資産が枯渇';
+      html += '<tr class="' + cls + '"><td>' + age + '歳</td><td>' + fmt(dp.assets) + '万円</td><td>' + note + '</td></tr>';
+    });
+
+    tbody.innerHTML = html;
+  }
+
+  // Initial run and resize handler
+  window.addEventListener('resize', scheduleUpdate);
+  runSimulation();
+
+})();
+</script>
+</body>
+</html>

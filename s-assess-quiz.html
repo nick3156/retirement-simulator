@@ -1,0 +1,2102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sアセス一次試験 対策クイズ</title>
+<style>
+  :root {
+    --primary: #2563eb;
+    --primary-light: #dbeafe;
+    --correct: #16a34a;
+    --correct-light: #dcfce7;
+    --wrong: #dc2626;
+    --wrong-light: #fee2e2;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 20px 16px;
+  }
+  header {
+    text-align: center;
+    padding: 24px 0;
+    border-bottom: 2px solid var(--primary);
+    margin-bottom: 24px;
+  }
+  header h1 {
+    font-size: 1.5rem;
+    color: var(--primary);
+    margin-bottom: 4px;
+  }
+  header p {
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+  .stats-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 20px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .stats-bar .stat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .stat-label { color: var(--muted); }
+  .stat-value { font-weight: 700; }
+  .stat-value.correct-count { color: var(--correct); }
+  .stat-value.wrong-count { color: var(--wrong); }
+  .accuracy { color: var(--primary); font-weight: 700; }
+
+  .category-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .filter-btn {
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: var(--card);
+    color: var(--muted);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover { border-color: var(--primary); color: var(--primary); }
+  .filter-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+
+  .question-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .question-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .q-number {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .q-category {
+    font-size: 0.75rem;
+    background: var(--primary-light);
+    color: var(--primary);
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+  }
+  .question-text {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    line-height: 1.8;
+  }
+  .choices {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .choice-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    background: var(--card);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+  .choice-btn:hover:not(.disabled) {
+    border-color: var(--primary);
+    background: var(--primary-light);
+  }
+  .choice-label {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .choice-btn.selected {
+    border-color: var(--primary);
+    background: var(--primary-light);
+  }
+  .choice-btn.selected .choice-label {
+    background: var(--primary);
+    color: white;
+  }
+  .choice-btn.correct-answer {
+    border-color: var(--correct);
+    background: var(--correct-light);
+  }
+  .choice-btn.correct-answer .choice-label {
+    background: var(--correct);
+    color: white;
+  }
+  .choice-btn.wrong-answer {
+    border-color: var(--wrong);
+    background: var(--wrong-light);
+  }
+  .choice-btn.wrong-answer .choice-label {
+    background: var(--wrong);
+    color: white;
+  }
+  .choice-btn.disabled { cursor: default; opacity: 0.85; }
+  .choice-btn.disabled.dimmed { opacity: 0.5; }
+
+  .result-box {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 12px;
+    display: none;
+    line-height: 1.8;
+  }
+  .result-box.show { display: block; }
+  .result-box.correct-result {
+    background: var(--correct-light);
+    border: 1px solid var(--correct);
+  }
+  .result-box.wrong-result {
+    background: var(--wrong-light);
+    border: 1px solid var(--wrong);
+  }
+  .result-title {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 8px;
+  }
+  .result-title.correct-title { color: var(--correct); }
+  .result-title.wrong-title { color: var(--wrong); }
+  .result-explanation {
+    font-size: 0.9rem;
+    color: var(--text);
+  }
+  .result-source {
+    margin-top: 10px;
+    font-size: 0.78rem;
+    color: var(--muted);
+    border-top: 1px solid rgba(0,0,0,0.1);
+    padding-top: 8px;
+  }
+
+  .next-btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 16px;
+  }
+  .next-btn:hover { opacity: 0.9; }
+  .next-btn:disabled {
+    background: var(--border);
+    color: var(--muted);
+    cursor: default;
+  }
+
+  .mode-toggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .mode-btn {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    background: var(--card);
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+  }
+  .mode-btn.active {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: var(--primary-light);
+  }
+
+  .progress-ring {
+    width: 100%;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 3px;
+    transition: width 0.3s;
+  }
+
+  .history-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 24px;
+    margin-top: 24px;
+  }
+  .history-panel h3 {
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+    color: var(--muted);
+  }
+  .history-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+  }
+  .history-item:last-child { border-bottom: none; }
+  .history-icon { font-size: 1.1rem; }
+  .history-text {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  @media (max-width: 480px) {
+    .container { padding: 12px 10px; }
+    .question-card { padding: 20px 16px; }
+    header h1 { font-size: 1.2rem; }
+    .stats-bar { padding: 10px 14px; font-size: 0.8rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Sアセス一次試験 対策クイズ</h1>
+    <p>全問ソース資料に基づく5択問題 | 無限出題モード</p>
+  </header>
+
+  <div class="stats-bar">
+    <div class="stat">
+      <span class="stat-label">出題数</span>
+      <span class="stat-value" id="totalCount">0</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">正解</span>
+      <span class="stat-value correct-count" id="correctCount">0</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">不正解</span>
+      <span class="stat-value wrong-count" id="wrongCount">0</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">正答率</span>
+      <span class="accuracy" id="accuracy">--%</span>
+    </div>
+  </div>
+
+  <div class="mode-toggle">
+    <button class="mode-btn active" onclick="setMode('random')">ランダム出題</button>
+    <button class="mode-btn" onclick="setMode('weak')">苦手重点</button>
+    <button class="mode-btn" onclick="setMode('sequential')">順番出題</button>
+  </div>
+
+  <div class="category-filter" id="categoryFilter"></div>
+
+  <div id="quizArea"></div>
+
+  <div class="history-panel" id="historyPanel" style="display:none;">
+    <h3>直近の回答履歴</h3>
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<script>
+// ===== QUESTION DATABASE (全問ソース資料から作成) =====
+const questions = [
+
+// ===== 理念・ビジョン =====
+{
+  category: "理念・ビジョン",
+  question: "マツキヨココカラ&カンパニーのグループ理念として正しいものはどれか。",
+  choices: [
+    "美しさと健やかさを、もっと楽しく、身近に。",
+    "未来の常識を創り出し、人々の生活を変えていく",
+    "Find your \"!\"",
+    "価値を共創し分かち合う",
+    "アジアNo.1のドラッグストアを目指す"
+  ],
+  answer: 1,
+  explanation: "グループ理念は「未来の常識を創り出し、人々の生活を変えていく」です。補足テキスト版では「未来の美と健康を考え抜き、新たな顧客体験を創り出し輝きを増していく生活・地域社会の実現に貢献する」という表現もあります。",
+  source: "Sアセス一次試験 対策まとめ - 理念・ビジョン"
+},
+{
+  category: "理念・ビジョン",
+  question: "グループビジョンとして正しいものはどれか。",
+  choices: [
+    "未来の常識を創り出し、人々の生活を変えていく",
+    "価値を共創し分かち合う",
+    "美しさと健やかさを、もっと楽しく、身近に。",
+    "Find your \"!\"",
+    "稼ぐと還元の好循環による企業価値向上"
+  ],
+  answer: 2,
+  explanation: "グループビジョンは「美しさと健やかさを、もっと楽しく、身近に。」です。美と健康の分野で新技術・アイディアを積極活用し、毎日の生活をもっと楽しくすることを目指しています。",
+  source: "Sアセス一次試験 対策まとめ - 理念・ビジョン"
+},
+{
+  category: "理念・ビジョン",
+  question: "グループスローガン「Find your \"!\"」の「！」はどう読むか。",
+  choices: [
+    "ビックリ",
+    "ワクワク",
+    "ワオ（wow）",
+    "スマイル",
+    "ドキドキ"
+  ],
+  answer: 2,
+  explanation: "「！」は「wow（ワオ）」と読みます。訪れるたびに驚きや喜びがあり、ワクワクした気分になってもらいたいという意味が込められています。",
+  source: "Sアセス一次試験 対策まとめ - 理念・ビジョン"
+},
+{
+  category: "理念・ビジョン",
+  question: "グループシンボルの「&」のフォルムが表現しているものは何か。",
+  choices: [
+    "従業員の「挑戦」",
+    "ステークホルダーの「笑顔」",
+    "お客様の「健康」",
+    "企業の「成長」",
+    "地域社会への「貢献」"
+  ],
+  answer: 1,
+  explanation: "「&」のフォルムはステークホルダーの「笑顔」を表現しています。また、暮らしのハブとして「つなぐ」役割も象徴しています。",
+  source: "Sアセス一次試験 対策まとめ - 理念・ビジョン"
+},
+{
+  category: "理念・ビジョン",
+  question: "社名「& Co.」の「Co.」は何の略か。",
+  choices: [
+    "corporation",
+    "community",
+    "company",
+    "cooperation",
+    "collaboration"
+  ],
+  answer: 2,
+  explanation: "「& Co.」は「and company」の略です。「マツモトキヨシとココカラファインと仲間」、同じ志を持つ仲間（企業）が集まり新グループを創る意思を表しています。",
+  source: "Sアセス一次試験 対策まとめ - 理念・ビジョン"
+},
+{
+  category: "理念・ビジョン",
+  question: "グループスローガンとして正しいものはどれか。",
+  choices: [
+    "Beauty & Health for All",
+    "美しさと健やかさを、もっと楽しく、身近に。",
+    "未来の常識を創り出す",
+    "Find your \"!\"",
+    "価値を共創し分かち合う"
+  ],
+  answer: 3,
+  explanation: "グループスローガンは「Find your \"!\"」です。「美しさと健やかさを、もっと楽しく、身近に。」はグループビジョン、「価値を共創し分かち合う」は経営方針の基本的な考え方です。",
+  source: "Sアセス一次試験 対策まとめ - 理念・ビジョン"
+},
+{
+  category: "理念・ビジョン",
+  question: "グループシンボル「&」が象徴する「つなぐ」役割とは、何としての役割か。",
+  choices: [
+    "地域のリーダー",
+    "健康のアドバイザー",
+    "暮らしのハブ",
+    "美の発信地",
+    "まちの拠点"
+  ],
+  answer: 2,
+  explanation: "「&」のフォルムは暮らしのハブとして「つなぐ」役割を象徴しています。",
+  source: "Sアセス一次試験 対策まとめ - 理念・ビジョン"
+},
+
+// ===== 経営方針 =====
+{
+  category: "経営方針",
+  question: "経営方針の基本的な考え方として正しいものはどれか。",
+  choices: [
+    "顧客第一主義",
+    "美と健康の追求",
+    "価値を共創し分かち合う",
+    "地域社会への貢献",
+    "持続可能な経営"
+  ],
+  answer: 2,
+  explanation: "基本的な考え方は「価値を共創し分かち合う」です。稼ぐと還元の好循環による企業価値向上を目指しています。",
+  source: "Sアセス一次試験 対策まとめ - 経営方針"
+},
+{
+  category: "経営方針",
+  question: "2031年3月期の目指す姿として正しいものはどれか。",
+  choices: [
+    "国内No.1のドラッグストアチェーン",
+    "アジアNo.1のドラッグストア",
+    "世界No.1のヘルス＆ビューティ企業",
+    "日本最大の調剤薬局",
+    "アジア最大の化粧品小売"
+  ],
+  answer: 1,
+  explanation: "2031年3月期の目指す姿は「アジアNo.1のドラッグストアとなり、美と健康の分野でのリーディングポジションを確立する」です。",
+  source: "Sアセス一次試験 対策まとめ - 経営方針"
+},
+{
+  category: "経営方針",
+  question: "2031年3月期のグループ経営目標で、売上高の目標値はいくらか。",
+  choices: [
+    "1.0兆円",
+    "1.1兆円",
+    "1.3兆円",
+    "1.5兆円",
+    "2.0兆円"
+  ],
+  answer: 2,
+  explanation: "2031年3月期のグループ経営目標として、売上高1.3兆円が掲げられています。",
+  source: "Sアセス一次試験 対策まとめ - 経営方針"
+},
+{
+  category: "経営方針",
+  question: "2031年3月期のEBITDAマージンの目標値はどれか。",
+  choices: [
+    "7.7%以上",
+    "9.7%以上",
+    "10%以上",
+    "13%以上",
+    "15%以上"
+  ],
+  answer: 3,
+  explanation: "EBITDAマージンの目標は13%以上です。なお、現状（2026年3月期3Q）のEBITDAマージンは9.7%であり、目標との乖離があります。",
+  source: "Sアセス一次試験 対策まとめ - 経営方針"
+},
+{
+  category: "経営方針",
+  question: "2031年3月期のROEの目標値はどれか。",
+  choices: [
+    "6%以上",
+    "8%以上",
+    "10%以上",
+    "12%以上",
+    "15%以上"
+  ],
+  answer: 3,
+  explanation: "ROEの目標値は12%以上です。",
+  source: "Sアセス一次試験 対策まとめ - 経営方針"
+},
+{
+  category: "経営方針",
+  question: "2031年3月期の配当性向の目標値はどれか。",
+  choices: [
+    "30%以上",
+    "40%以上",
+    "50%以上",
+    "60%以上",
+    "70%以上"
+  ],
+  answer: 2,
+  explanation: "配当性向の目標値は50%以上です。",
+  source: "Sアセス一次試験 対策まとめ - 経営方針"
+},
+{
+  category: "経営方針",
+  question: "DOE（株主資本配当率）の目標値はどれか。",
+  choices: [
+    "3%",
+    "4%",
+    "5%",
+    "6%",
+    "8%"
+  ],
+  answer: 3,
+  explanation: "DOEの目標値は6%です。",
+  source: "Sアセス一次試験 対策まとめ - 経営方針"
+},
+{
+  category: "経営方針",
+  question: "3つの重点戦略に含まれないものはどれか。",
+  choices: [
+    "地位強化戦略",
+    "投資戦略",
+    "社会貢献・還元",
+    "海外進出戦略",
+    "上記のうち含まれないものは1つだけである"
+  ],
+  answer: 3,
+  explanation: "3つの重点戦略は①地位強化戦略（プラットフォームビジネスの強化）②投資戦略（ビジネスインフラへの投資）③社会貢献・還元（持続可能な経営姿勢の実践）です。「海外進出戦略」は含まれていません。",
+  source: "Sアセス一次試験 対策まとめ - 経営方針"
+},
+{
+  category: "経営方針",
+  question: "キャッシュアロケーションにおける「成長投資」の配分割合はどれか。",
+  choices: [
+    "25%",
+    "35%",
+    "45%",
+    "55%",
+    "60%"
+  ],
+  answer: 2,
+  explanation: "キャッシュアロケーションは成長投資45%、株主還元45%、財務基盤強化10%の配分です。",
+  source: "Sアセス一次試験 対策まとめ - 経営方針"
+},
+{
+  category: "経営方針",
+  question: "キャッシュアロケーションにおける「財務基盤強化」の配分割合はどれか。",
+  choices: [
+    "5%",
+    "10%",
+    "15%",
+    "20%",
+    "25%"
+  ],
+  answer: 1,
+  explanation: "財務基盤強化への配分は10%です。成長投資45%、株主還元45%、財務基盤強化10%の構成です。",
+  source: "Sアセス一次試験 対策まとめ - 経営方針"
+},
+{
+  category: "経営方針",
+  question: "大型連合体構想の場合に活用を視野に入れるとされているものは何か。",
+  choices: [
+    "自己株式の売却",
+    "増資",
+    "負債の活用",
+    "保有不動産の売却",
+    "政府補助金"
+  ],
+  answer: 2,
+  explanation: "大型の連合体構想の場合は、負債の活用も視野に進めるとされています。",
+  source: "Sアセス一次試験 対策まとめ - 経営方針"
+},
+
+// ===== IR・財務情報 =====
+{
+  category: "IR・財務",
+  question: "2026年3月期3Q累計の売上高（前年同期比）の増減率として正しいものはどれか。",
+  choices: [
+    "+2.3%",
+    "+3.5%",
+    "+4.7%",
+    "+5.8%",
+    "+6.6%"
+  ],
+  answer: 2,
+  explanation: "2026年3月期3Q累計の売上高は前年同期の8,015億円から8,393億円へ+4.7%の増収です。",
+  source: "Sアセス一次試験 対策まとめ - IR・財務情報"
+},
+{
+  category: "IR・財務",
+  question: "2026年3月期3Q累計の営業利益率はどれか。",
+  choices: [
+    "6.7%",
+    "7.2%",
+    "7.7%",
+    "8.2%",
+    "9.7%"
+  ],
+  answer: 2,
+  explanation: "2026年3月期3Q累計の営業利益率は7.7%で、前年同期と横ばいです。",
+  source: "Sアセス一次試験 対策まとめ - IR・財務情報"
+},
+{
+  category: "IR・財務",
+  question: "2026年3月期3Q累計のEBITDAマージンはどれか。",
+  choices: [
+    "7.7%",
+    "8.5%",
+    "9.0%",
+    "9.7%",
+    "13.0%"
+  ],
+  answer: 3,
+  explanation: "2026年3月期3Q累計のEBITDAマージンは9.7%です。前年同期の9.8%から△0.1ptの微減です。",
+  source: "Sアセス一次試験 対策まとめ - IR・財務情報"
+},
+{
+  category: "IR・財務",
+  question: "増収要因として挙げられていないものはどれか。",
+  choices: [
+    "人流拡大",
+    "化粧品好調",
+    "香港の連結",
+    "新生堂薬局の連結",
+    "PB商品の値上げ"
+  ],
+  answer: 4,
+  explanation: "増収要因は人流拡大・化粧品好調・香港および新生堂薬局の連結です。「PB商品の値上げ」は増収要因として挙げられていません。",
+  source: "Sアセス一次試験 対策まとめ - IR・財務情報"
+},
+{
+  category: "IR・財務",
+  question: "2026年3月期通期の売上高予想はいくらか。",
+  choices: [
+    "1兆616億円",
+    "1兆800億円",
+    "1兆1,000億円",
+    "1兆1,500億円",
+    "1兆3,000億円"
+  ],
+  answer: 2,
+  explanation: "2026年3月期通期の売上高予想は1兆1,000億円です。前期実績は1兆616億円でした。",
+  source: "Sアセス一次試験 対策まとめ - IR・財務情報"
+},
+{
+  category: "IR・財務",
+  question: "セグメント別3Q累計で、マツモトキヨシGの売上高増減率はどれか。",
+  choices: [
+    "+4.2%",
+    "+4.7%",
+    "+5.4%",
+    "+6.6%",
+    "+7.6%"
+  ],
+  answer: 3,
+  explanation: "マツモトキヨシGの3Q累計売上高増減は+6.6%です。化粧品好調・都市圏出店・調剤推進が背景です。",
+  source: "Sアセス一次試験 対策まとめ - IR・財務情報"
+},
+{
+  category: "IR・財務",
+  question: "ココカラファインGの3Q累計の売上高増減として正しいものはどれか。",
+  choices: [
+    "+1.2%",
+    "+0.4%",
+    "横ばい",
+    "△0.4%",
+    "△3.5%"
+  ],
+  answer: 3,
+  explanation: "ココカラファインGの売上高増減は△0.4%です。人的資本再配置・構造改革の一時的影響が背景です。利益増減は△3.5%でした。",
+  source: "Sアセス一次試験 対策まとめ - IR・財務情報"
+},
+{
+  category: "IR・財務",
+  question: "美と健康カテゴリ構成比はどれか。",
+  choices: [
+    "65.0%",
+    "68.5%",
+    "70.1%",
+    "72.3%",
+    "75.0%"
+  ],
+  answer: 3,
+  explanation: "美と健康カテゴリ構成比は72.3%（+0.9pt）です。",
+  source: "Sアセス一次試験 対策まとめ - IR・財務情報"
+},
+{
+  category: "IR・財務",
+  question: "最も伸びた商品カテゴリとその伸び率はどれか。",
+  choices: [
+    "食品 +5.2%",
+    "医薬品 +6.1%",
+    "化粧品 +7.6%",
+    "日用品 +4.3%",
+    "調剤 +8.0%"
+  ],
+  answer: 2,
+  explanation: "最も伸びた商品は化粧品で+7.6%です。",
+  source: "Sアセス一次試験 対策まとめ - IR・財務情報"
+},
+{
+  category: "IR・財務",
+  question: "2025年3月期の自己資本比率はどれか。",
+  choices: [
+    "65.3%",
+    "70.1%",
+    "71.0%",
+    "73.1%",
+    "75.5%"
+  ],
+  answer: 3,
+  explanation: "2025年3月期通期の自己資本比率は73.1%です。",
+  source: "Sアセス一次試験 対策まとめ - IR・財務情報"
+},
+{
+  category: "IR・財務",
+  question: "国内店舗数の合計（2025年12月末）として正しいものはどれか。",
+  choices: [
+    "2,959店舗",
+    "3,200店舗",
+    "3,492店舗",
+    "3,604店舗",
+    "3,850店舗"
+  ],
+  answer: 3,
+  explanation: "国内合計は3,604店舗です。内訳：MKG 1,959店 / CFG 1,533店 / アンドカンパニー 112店。",
+  source: "Sアセス一次試験 対策まとめ - IR・財務情報"
+},
+{
+  category: "IR・財務",
+  question: "海外店舗数（2025年12月末）として正しいものはどれか。",
+  choices: [
+    "52店舗",
+    "78店舗",
+    "98店舗",
+    "120店舗",
+    "150店舗"
+  ],
+  answer: 2,
+  explanation: "海外店舗数は98店舗です（台湾・タイ・ベトナム・香港・グアム・マレーシア）。",
+  source: "Sアセス一次試験 対策まとめ - IR・財務情報"
+},
+{
+  category: "IR・財務",
+  question: "調剤取扱店舗数として正しいものはどれか。",
+  choices: [
+    "803店舗",
+    "950店舗",
+    "1,103店舗",
+    "1,250店舗",
+    "1,533店舗"
+  ],
+  answer: 2,
+  explanation: "調剤取扱店舗は1,103店舗です。",
+  source: "Sアセス一次試験 対策まとめ - IR・財務情報"
+},
+{
+  category: "IR・財務",
+  question: "EBITDAの定義として正しいものはどれか。",
+  choices: [
+    "売上高 - 売上原価",
+    "営業利益 + 受取利息",
+    "営業利益 + 減価償却費及びのれん償却額",
+    "経常利益 + 特別損益",
+    "税引前利益 + 支払利息"
+  ],
+  answer: 2,
+  explanation: "EBITDAの定義は「営業利益 + 減価償却費及びのれん償却額」です。EBITDAマージンはEBITDA÷売上高で計算されます。",
+  source: "Sアセス一次試験 対策まとめ - 計数問題"
+},
+{
+  category: "IR・財務",
+  question: "MKGのPB商品売上構成比として正しいものはどれか。",
+  choices: [
+    "10.5%",
+    "12.3%",
+    "14.1%",
+    "14.7%",
+    "16.2%"
+  ],
+  answer: 3,
+  explanation: "MKGのPB商品売上構成比は14.7%です。CFGは14.1%で、ともに前年比+1.2〜1.3ptの増加です。",
+  source: "Sアセス一次試験 対策まとめ - IR・財務情報"
+},
+
+// ===== 計数管理（基礎） =====
+{
+  category: "計数管理",
+  question: "「計数感覚に優れた人」の説明として正しいものはどれか。",
+  choices: [
+    "計算が速い人",
+    "簿記・会計の知識がある人",
+    "分析力があり、数字を活用して成果をあげられる人",
+    "経理部門で働いている人",
+    "資格を多数保有している人"
+  ],
+  answer: 2,
+  explanation: "計数感覚に優れた人と言われるためには、計算が速く簿記・会計の知識があるだけでは十分ではなく、分析力があり、数字を活用して成果をあげられることが必要です。",
+  source: "計数入門コース 第1単位 レポート解説"
+},
+{
+  category: "計数管理",
+  question: "「売上はこれだけしか望めない、会社としてこれだけの利益が必要だ、だから費用はこれだけしか使えない」という考え方を何というか。",
+  choices: [
+    "財務会計発想",
+    "管理会計発想",
+    "目標利益的発想",
+    "原価管理発想",
+    "予算統制発想"
+  ],
+  answer: 2,
+  explanation: "この説明は「目標利益的発想」です。",
+  source: "計数入門コース 第1単位 レポート解説"
+},
+{
+  category: "計数管理",
+  question: "財務三表に含まれないものはどれか。",
+  choices: [
+    "貸借対照表",
+    "損益計算書",
+    "キャッシュフロー計算書",
+    "法人税申告書",
+    "上記はすべて財務三表に含まれる"
+  ],
+  answer: 3,
+  explanation: "財務三表は貸借対照表、損益計算書、キャッシュフロー計算書の3つです。法人税申告書は含まれません。",
+  source: "計数管理 問題レポート1,2章 問4(26)"
+},
+{
+  category: "計数管理",
+  question: "損益計算書の説明として正しいものはどれか。",
+  choices: [
+    "左側に資産、右側に負債と純資産が計上される",
+    "企業の健全性を評価できる決算書である",
+    "経営のプロセスごとに獲得した利益を把握できる、会社の収益力を表した決算書である",
+    "資金の流れを表した決算書である",
+    "在庫の増減を記録する決算書である"
+  ],
+  answer: 2,
+  explanation: "損益計算書は経営のプロセスごとに獲得した利益を把握できるようになっている、会社の収益力を表した決算書です。「左側に資産、右側に負債と純資産」は貸借対照表の説明です。",
+  source: "計数入門コース 第1単位 レポート解説"
+},
+{
+  category: "計数管理",
+  question: "総合原価計算が使われる生産方式はどれか。",
+  choices: [
+    "受注生産方式",
+    "個別生産方式",
+    "見込生産方式",
+    "ロット生産方式",
+    "プロジェクト生産方式"
+  ],
+  answer: 2,
+  explanation: "総合原価計算は、市場での販売を見込んで同じ種類の製品を継続して作り続ける見込生産方式で使われる原価の計算方法です。",
+  source: "計数入門コース 第1単位 レポート解説"
+},
+{
+  category: "計数管理",
+  question: "フリーキャッシュフローの計算式として正しいものはどれか。",
+  choices: [
+    "営業CF + 財務CF",
+    "営業CF + 投資CF",
+    "営業CF - 投資CF",
+    "税引後利益 + 減価償却費",
+    "売上高 - 売上原価 - 販管費"
+  ],
+  answer: 1,
+  explanation: "フリーキャッシュフローは営業キャッシュフローと投資キャッシュフローを合わせたものです。例：営業CF 550万円 + 投資CF(△300万円) = 250万円。",
+  source: "計数入門コース 第1単位 レポート解説 (18)"
+},
+{
+  category: "計数管理",
+  question: "先入先出法の説明として正しいものはどれか。",
+  choices: [
+    "後に購入した材料から先に払い出す方法",
+    "先に購入した材料から先に払い出す方法",
+    "購入した材料の単価を平均して払出単価を決める方法",
+    "最も高い単価の材料から払い出す方法",
+    "最も安い単価の材料から払い出す方法"
+  ],
+  answer: 1,
+  explanation: "先入先出法は先に購入した材料から先に払い出すという考え方です。平均法は購入した材料の単価を平均して払出単価を決める方法です。",
+  source: "計数入門コース 第1単位 レポート解説"
+},
+{
+  category: "計数管理",
+  question: "経常利益の計算式として正しいものはどれか。",
+  choices: [
+    "売上高 - 売上原価",
+    "営業利益 + 営業外利益 - 営業外費用",
+    "営業利益 + 特別利益 - 特別損失",
+    "税引前利益 - 法人税等",
+    "売上総利益 - 販管費"
+  ],
+  answer: 1,
+  explanation: "経常利益＝営業利益＋営業外利益−営業外費用です。例：140万円+60万円−50万円＝150万円。",
+  source: "計数入門コース 第1単位 レポート解説 (21)"
+},
+{
+  category: "計数管理",
+  question: "原価計算を行う目的として誤っているものはどれか。",
+  choices: [
+    "正しい決算書を作成する",
+    "販売価格を決定する",
+    "原価の管理を行う",
+    "採算計算を行う",
+    "資金の流れを確認する"
+  ],
+  answer: 4,
+  explanation: "原価計算の目的は①正しい決算書を作成する②販売価格を決定する③原価の管理を行う④採算計算を行う、の4つです。「資金の流れを確認する」は含まれません。",
+  source: "計数入門コース 第1単位 レポート解説 (27) / 問題レポート1,2章 問4(27)"
+},
+{
+  category: "計数管理",
+  question: "製造原価の3つの分類として正しいものはどれか。",
+  choices: [
+    "材料費、人件費、管理費",
+    "材料費、労務費、経費",
+    "直接費、間接費、共通費",
+    "変動費、固定費、準変動費",
+    "原材料費、加工費、諸経費"
+  ],
+  answer: 1,
+  explanation: "製造原価は材料費、労務費、経費の3つに分類されます。",
+  source: "計数入門コース 第1単位 レポート解説"
+},
+{
+  category: "計数管理",
+  question: "価格差異の計算式として正しいものはどれか。",
+  choices: [
+    "（実際単価 - 標準単価）× 標準使用量",
+    "（実際単価 - 標準単価）× 実際使用量",
+    "（実際使用量 - 標準使用量）× 標準単価",
+    "（実際使用量 - 標準使用量）× 実際単価",
+    "実際原価 - 標準原価"
+  ],
+  answer: 1,
+  explanation: "価格差異＝（実際単価−標準単価）×実際使用量です。例：(250円-200円)×7,500個＝375,000円。",
+  source: "計数入門コース 第1単位 レポート解説 (24)"
+},
+{
+  category: "計数管理",
+  question: "数量差異の計算式として正しいものはどれか。",
+  choices: [
+    "（実際単価 - 標準単価）× 標準使用量",
+    "（実際単価 - 標準単価）× 実際使用量",
+    "（実際使用量 - 標準使用量）× 標準単価",
+    "（実際使用量 - 標準使用量）× 実際単価",
+    "実際原価 - 標準原価"
+  ],
+  answer: 2,
+  explanation: "数量差異＝（実際使用量−標準使用量）×標準単価です。例：(7,500個-5,000個)×200円＝500,000円。",
+  source: "計数入門コース 第1単位 レポート解説 (25)"
+},
+{
+  category: "計数管理",
+  question: "交叉比率（商品の生産性）は何と何に分解できるか。",
+  choices: [
+    "売上高と利益率",
+    "粗利益率と商品回転率",
+    "営業利益率と在庫回転率",
+    "限界利益率と固定費率",
+    "変動費率と貢献利益率"
+  ],
+  answer: 1,
+  explanation: "商品の生産性は粗利益率と商品回転率の2つに分解でき、交叉比率とも呼ばれます。小売業ではもっとも重要な指標です。",
+  source: "計数入門コース 第1単位 レポート解説 (32)(33)"
+},
+{
+  category: "計数管理",
+  question: "自己資本比率の説明として正しいものはどれか。",
+  choices: [
+    "負債に対する純資産の比率",
+    "資産に対する純資産の比率",
+    "資産に対する負債の比率",
+    "売上高に対する純利益の比率",
+    "純資産に対する利益の比率"
+  ],
+  answer: 1,
+  explanation: "自己資本比率は、資産に対する純資産の比率のことで、企業の健全性を評価するうえでもっとも重要な指標です。",
+  source: "計数入門コース 第1単位 レポート解説 (35)(36)"
+},
+{
+  category: "計数管理",
+  question: "標準原価計算の賃率差異は何を表すか。",
+  choices: [
+    "材料の使用量が標準を超えたことによる差異",
+    "予定よりも高い人件費の人を使用したことによる原価差異",
+    "機械の稼働率が低下したことによる差異",
+    "製造間接費の配賦基準の違いによる差異",
+    "在庫の評価額の変動による差異"
+  ],
+  answer: 1,
+  explanation: "賃率差異は、予定よりも高い人件費の人を使用してしまったことによる原価差異を表します。",
+  source: "計数入門コース 第1単位 レポート解説 (37)"
+},
+{
+  category: "計数管理",
+  question: "操業度差異の説明として正しいものはどれか。",
+  choices: [
+    "材料の価格変動による差異",
+    "作業の能率が悪かったことによる差異",
+    "生産量の調整により発生する原価差異",
+    "予算超過による差異",
+    "為替変動による差異"
+  ],
+  answer: 2,
+  explanation: "操業度差異は、生産量の調整により発生する原価差異です。作業の能率が悪かったことによる差異ではありません。",
+  source: "計数入門コース 第1単位 レポート解説 (11)"
+},
+{
+  category: "計数管理",
+  question: "過剰な在庫がもたらす悪影響として含まれないものはどれか。",
+  choices: [
+    "金利費用の増加",
+    "保管費用・管理費用の増加",
+    "在庫ロス（減耗分）",
+    "値引き・廃棄ロス",
+    "売上高の減少"
+  ],
+  answer: 4,
+  explanation: "過剰在庫の悪影響は①金利費用②保管費用・管理費用③在庫ロス（減耗分）④値引き・廃棄ロス⑤経営資金の圧迫の5つです。「売上高の減少」は直接の悪影響として挙げられていません。",
+  source: "計数入門コース 第1単位 レポート解説 (29)"
+},
+
+// ===== 計数管理（応用） =====
+{
+  category: "計数管理",
+  question: "固定費の説明として正しいものはどれか。",
+  choices: [
+    "特定の製品の製造だけに発生したと判別できる費用",
+    "売上や操業度に関係なく一定に発生する費用",
+    "売上に比例して増減する費用",
+    "製造間接費と同義の費用",
+    "一度だけ発生する費用"
+  ],
+  answer: 1,
+  explanation: "固定費とは売上や操業度に関係なく一定に発生する費用です。「特定の製品の製造だけに発生したと判別できる費用」は製造直接費の説明です。",
+  source: "計数入門コース 第2単位 レポート解説 (1)"
+},
+{
+  category: "計数管理",
+  question: "損益分岐点比率が100%以上の企業の経営状態はどれか。",
+  choices: [
+    "高収益経営の状態",
+    "黒字ギリギリの状態",
+    "赤字を計上している状態",
+    "損益トントンの状態",
+    "経営が安定している状態"
+  ],
+  answer: 2,
+  explanation: "損益分岐点比率が100%以上の企業は、赤字を計上している経営状態です。",
+  source: "計数入門コース 第2単位 レポート解説 (2)"
+},
+{
+  category: "計数管理",
+  question: "売上高10,000万円、変動費6,000万円、固定費3,000万円の場合、損益分岐点売上高はいくらか。",
+  choices: [
+    "4,000万円",
+    "5,000万円",
+    "6,000万円",
+    "7,500万円",
+    "9,000万円"
+  ],
+  answer: 3,
+  explanation: "損益分岐点売上高＝固定費÷(1−変動費率)＝3,000÷(1−6,000/10,000)＝3,000÷0.4＝7,500万円です。",
+  source: "計数管理 問題レポート3,4章 問2(12)"
+},
+{
+  category: "計数管理",
+  question: "上記の条件で安全余裕率は何%か。（売上高10,000万円、損益分岐点売上高7,500万円）",
+  choices: [
+    "15%",
+    "20%",
+    "25%",
+    "30%",
+    "75%"
+  ],
+  answer: 2,
+  explanation: "安全余裕率＝100−損益分岐点比率(%)。損益分岐点比率＝7,500÷10,000×100＝75%。よって安全余裕率＝100−75＝25%。",
+  source: "計数管理 問題レポート3,4章 問2(13)"
+},
+{
+  category: "計数管理",
+  question: "固定費3,000万円、変動費率60%で目標利益1,800万円を達成するための必要売上高はいくらか。",
+  choices: [
+    "8,000万円",
+    "10,800万円",
+    "12,000万円",
+    "12,800万円",
+    "14,000万円"
+  ],
+  answer: 2,
+  explanation: "必要売上高＝(固定費+目標利益)÷(1−変動費率)＝(3,000+1,800)÷0.4＝12,000万円です。",
+  source: "計数管理 問題レポート3,4章 問2(14)"
+},
+{
+  category: "計数管理",
+  question: "取得価格200万円、耐用年数5年の固定資産を定額法で償却した場合、1年目の減価償却費はいくらか。",
+  choices: [
+    "200,000円",
+    "400,000円",
+    "500,000円",
+    "600,000円",
+    "800,000円"
+  ],
+  answer: 1,
+  explanation: "定額法では毎年一定額を償却します。償却率＝1÷5＝0.200。1年目の減価償却費＝200万円×0.200＝400,000円。",
+  source: "計数管理 問題レポート3,4章 問2(15)"
+},
+{
+  category: "計数管理",
+  question: "リードタイム2日、1日あたり平均販売数量5個、安全在庫3個の場合、発注日の適正在庫は何個か。",
+  choices: [
+    "8個",
+    "10個",
+    "12個",
+    "13個",
+    "15個"
+  ],
+  answer: 3,
+  explanation: "適正在庫＝リードタイム(2日)×1日あたり販売数量(5個)+安全在庫(3個)＝13個です。",
+  source: "計数管理 問題レポート3,4章 問2(16)"
+},
+{
+  category: "計数管理",
+  question: "作業時間合計30時間、ボトルネックによる拘束時間40時間の場合、ラインバランス効率は何%か。",
+  choices: [
+    "65%",
+    "70%",
+    "75%",
+    "80%",
+    "85%"
+  ],
+  answer: 2,
+  explanation: "ラインバランス効率(%)＝作業時間の合計÷ボトルネックによる拘束時間×100＝30÷40×100＝75%です。",
+  source: "計数管理 問題レポート3,4章 問2(17)"
+},
+{
+  category: "計数管理",
+  question: "来店客数500人、買上率30%、買上点数20個、1点あたり平均単価200円の場合、売上高はいくらか。",
+  choices: [
+    "100,000円",
+    "300,000円",
+    "600,000円",
+    "1,000,000円",
+    "1,200,000円"
+  ],
+  answer: 2,
+  explanation: "売上高＝客数(500人)×買上率(0.3)×買上点数(20個)×1点単価(200円)＝600,000円です。",
+  source: "計数管理 問題レポート3,4章 問2(18)"
+},
+{
+  category: "計数管理",
+  question: "固定費を変動費化することによる効果として正しいものはどれか。",
+  choices: [
+    "買上率を高めることができる",
+    "在庫回転率を高めることができる",
+    "将来原価を下げることができる",
+    "安全余裕率を高めることができる",
+    "売上高を増加させることができる"
+  ],
+  answer: 3,
+  explanation: "固定費の変動費化には、不測の事態に対する経営の耐久力を高める効果があり、安全余裕率を高めることができます。",
+  source: "計数管理 問題レポート3,4章 問3(20)"
+},
+{
+  category: "計数管理",
+  question: "固定費を下げる方法として誤っているものはどれか。",
+  choices: [
+    "作業員をパート社員化する",
+    "原価以下の注文を受ける",
+    "社用車をレンタカーとする",
+    "自社で行っている業務を外注化する",
+    "上記のうち2つ以上が誤りである"
+  ],
+  answer: 1,
+  explanation: "「原価以下の注文を受ける」は固定費を下げる方法ではありません。パート社員化、レンタカー化、外注化はいずれも固定費を変動費化し、結果として固定費を下げる効果があります。",
+  source: "計数管理 問題レポート3,4章 問3(21)"
+},
+{
+  category: "計数管理",
+  question: "原価以下の特別受注を受ける際の前提条件として誤っているものはどれか。",
+  choices: [
+    "製造能力に余力があること",
+    "既存のマーケットに影響を与えないこと",
+    "自社にしか製造できない製品であること",
+    "利益率よりも利益額が経営の優先課題であること",
+    "上記のうち2つ以上が誤りである"
+  ],
+  answer: 2,
+  explanation: "前提条件は①製造能力に余力がある②既存のマーケットに影響を与えない③利益率よりも利益額が経営の優先課題であること、の3つです。「自社にしか製造できない製品であること」は含まれません。",
+  source: "計数管理 問題レポート3,4章 問3(22)"
+},
+{
+  category: "計数管理",
+  question: "赤字製品の廃止を判断する際のポイントとして正しいものはどれか。",
+  choices: [
+    "粗利益率が低い製品であるか",
+    "営業利益率が低い製品であるか",
+    "固定費が大きい製品であるか",
+    "限界利益（貢献利益）がマイナスであるか",
+    "売上高が小さい製品であるか"
+  ],
+  answer: 3,
+  explanation: "製品の廃止や増産の判断を行う場合には、固定費を負担する前の限界利益が判断のポイントとなります。",
+  source: "計数管理 問題レポート3,4章 問3(23)"
+},
+{
+  category: "計数管理",
+  question: "重点管理を行う際にもっとも適した分析手法はどれか。",
+  choices: [
+    "ポートフォリオ分析",
+    "損益分岐点分析",
+    "ABC分析",
+    "アンケート調査",
+    "回帰分析"
+  ],
+  answer: 2,
+  explanation: "ABC分析は構成比の高いものに着目し、優先的に対策を行うことで、より少ない時間で最大の効果を得ようという重点管理の手法です。",
+  source: "計数管理 問題レポート3,4章 問3(25)"
+},
+{
+  category: "計数管理",
+  question: "Zチャートが右上がりの場合、何が読み取れるか。",
+  choices: [
+    "売上は減少傾向",
+    "売上は増加傾向",
+    "売上は好調",
+    "売上は低調",
+    "売上は横ばい"
+  ],
+  answer: 1,
+  explanation: "Zの形で右上がりは「売上は増加傾向」、並行は「売上は横ばい」、右下がりは「売上は減少傾向」を表します。",
+  source: "計数管理 問題レポート3,4章 問3(26)"
+},
+{
+  category: "計数管理",
+  question: "Zチャートでの幅が狭い場合、何が読み取れるか。",
+  choices: [
+    "売上は増加傾向",
+    "売上は減少傾向",
+    "売上は好調",
+    "売上は低調",
+    "季節変動が大きい"
+  ],
+  answer: 3,
+  explanation: "Zの幅が広い場合は「売上が好調」、幅が狭い場合は「売上が低調」と読み取れます。",
+  source: "計数管理 問題レポート3,4章 問3(27)"
+},
+{
+  category: "計数管理",
+  question: "限界利益の説明として正しいものはどれか。",
+  choices: [
+    "売上高から固定費を引いた金額",
+    "売上高から変動費を引いた金額",
+    "売上高から売上原価を引いた金額",
+    "営業利益から営業外費用を引いた金額",
+    "経常利益から特別損失を引いた金額"
+  ],
+  answer: 1,
+  explanation: "限界利益とは、売上高から変動費を引いた金額で、貢献利益とも呼ばれます。",
+  source: "計数入門コース 第2単位 レポート解説 (30)-(32)"
+},
+{
+  category: "計数管理",
+  question: "埋没原価の説明として正しいものはどれか。",
+  choices: [
+    "将来発生が見込まれる原価",
+    "すでに支出が行われており、採算の判断に影響を及ぼさない原価",
+    "製品の廃止に伴い発生する原価",
+    "何らかの経営判断により増減する原価",
+    "在庫として滞留している原価"
+  ],
+  answer: 1,
+  explanation: "埋没原価とは、すでに支出が行われており、採算の判断に影響を及ぼさない原価を指します。",
+  source: "計数管理 問題レポート3,4章 問1(4)"
+},
+{
+  category: "計数管理",
+  question: "ベンチマーキング手法で対象として考えるべき範囲はどれか。",
+  choices: [
+    "自社内の部門のみ",
+    "同業他社のみ",
+    "自社内の部門から異業種企業、世界のエクセレントカンパニーまで",
+    "国内企業のみ",
+    "上場企業のみ"
+  ],
+  answer: 2,
+  explanation: "ベンチマーキング手法では、自社内の部門だけでなく、同業他社や異業種企業、世界のエクセレントカンパニーまで含めて考えることが大切です。",
+  source: "計数入門コース 第2単位 レポート解説 (8)"
+},
+{
+  category: "計数管理",
+  question: "ボトルネックの正しい説明はどれか。",
+  choices: [
+    "ライン（工程）の効率のこと",
+    "ラインバランス効率を阻害する要因のこと",
+    "最も作業時間が短い工程のこと",
+    "在庫が滞留する場所のこと",
+    "品質管理の基準値のこと"
+  ],
+  answer: 1,
+  explanation: "ボトルネックはラインバランス効率を阻害する要因のことです。「ライン（工程）の効率のこと」という説明は誤りです。",
+  source: "計数入門コース 第2単位 レポート解説 (10)"
+},
+{
+  category: "計数管理",
+  question: "季節指数の精度を高めるために必要な最低年数はどれか。",
+  choices: [
+    "1年間",
+    "2年間",
+    "3年間",
+    "5年間",
+    "10年間"
+  ],
+  answer: 2,
+  explanation: "季節指数の精度を高めるためには最低3年間の実績が必要です。",
+  source: "計数入門コース 第2単位 レポート解説 (11)"
+},
+{
+  category: "計数管理",
+  question: "固定資産の取得価額が使用期間の間に分割される費用を何と呼ぶか。",
+  choices: [
+    "未来原価",
+    "埋没原価",
+    "減価償却費",
+    "増分原価",
+    "機会原価"
+  ],
+  answer: 2,
+  explanation: "固定資産の取得価額について、使用期間の間に分割される費用を減価償却費と呼びます。「未来原価」ではありません。",
+  source: "計数入門コース 第2単位 レポート解説 (5)"
+},
+
+// ===== メンバー指導 =====
+{
+  category: "メンバー指導",
+  question: "メンバーへの指導の基本ステップとして正しい順序はどれか。",
+  choices: [
+    "行動変容を図らせる → 物知りにしていく",
+    "物知りにしていく → 行動変容を図らせる",
+    "評価する → 指導する → 育成する",
+    "目標設定 → 実行 → 評価",
+    "観察 → 分析 → フィードバック"
+  ],
+  answer: 1,
+  explanation: "第一段階として「物知りにしていく」、第二段階として「行動変容を図らせること」が基本ステップです。",
+  source: "JMAM メンバー指導レポート 問1(1)"
+},
+{
+  category: "メンバー指導",
+  question: "カウンセリング・スキルの「受容」によって得られる効果は何か。",
+  choices: [
+    "インサイト効果",
+    "カタルシス効果",
+    "プラシーボ効果",
+    "ホーソン効果",
+    "ハロー効果"
+  ],
+  answer: 1,
+  explanation: "「受容」によって「カタルシス効果」（浄化）が得られます。「インサイト効果」は「自己一致」によって内面的気づきを得られるものです。",
+  source: "JMAM メンバー指導レポート 問1(2)"
+},
+{
+  category: "メンバー指導",
+  question: "メンバーをほめる場合の説明として正しいものはどれか。",
+  choices: [
+    "特別な功績があった場合に限ってほめるべき",
+    "全員の前でほめることが最も効果的",
+    "計画どおりの業務遂行など当たり前のことにもほめることが重要",
+    "ほめるのは年に数回のみが適切",
+    "結果だけをほめるべきでプロセスはほめなくてよい"
+  ],
+  answer: 2,
+  explanation: "特別な功績に限るのではなく、メンバーが計画どおりに業務を遂行するという当たり前のことに対してほめることが重要です。いいと思ったらその場ですぐにほめる方がよいです。",
+  source: "JMAM メンバー指導レポート 問1(3) 講評"
+},
+{
+  category: "メンバー指導",
+  question: "メンバーを叱る場合の原則として正しいものはどれか。",
+  choices: [
+    "全人格を対象にして叱るほうが効果が高い",
+    "他のメンバーの前で叱ることで戒めになる",
+    "特定の行為に限定し、後に引かないようにする",
+    "感情的に叱ることで危機感を持たせる",
+    "叱った後は1週間ほど距離を置く"
+  ],
+  answer: 2,
+  explanation: "人格については絶対に対象にしてはいけません。特定の行為にのみ限定し、後に引かないように心がける必要があります。",
+  source: "JMAM メンバー指導レポート 問1(4)"
+},
+{
+  category: "メンバー指導",
+  question: "「叱る」と「怒る」の違いとして正しいものはどれか。",
+  choices: [
+    "叱るは上司が行い、怒るは同僚が行う",
+    "叱るは合理的な理由による理性的な指摘、怒るは感情的な指摘",
+    "叱るは大きな問題に、怒るは小さな問題に使う",
+    "叱るは口頭で、怒るは文書で行う",
+    "両者に本質的な違いはない"
+  ],
+  answer: 1,
+  explanation: "「叱る」とは合理的な理由による理性的な問題点の指摘であり、「怒る」は感情的な指摘です。マネジャーは自分の感情をコントロールし「怒る」ことを極力排し、的確に「叱る」ことが大切です。",
+  source: "JMAM メンバー指導レポート 問4(1)"
+},
+{
+  category: "メンバー指導",
+  question: "OJTの基本となるマネジメントの4側面に含まれないものはどれか。",
+  choices: [
+    "仕事の管理",
+    "仕事の改善",
+    "メンバーの育成",
+    "職場の人間関係",
+    "予算の策定"
+  ],
+  answer: 4,
+  explanation: "OJTの基本となるマネジメントの4側面は①仕事の管理②仕事の改善③メンバーの育成④職場の人間関係です。",
+  source: "JMAM メンバー指導レポート 問4(2)"
+},
+{
+  category: "メンバー指導",
+  question: "メンバーが悩んでいるときのSOSサインに含まれないものはどれか。",
+  choices: [
+    "言い訳をする",
+    "逃避する",
+    "攻撃する",
+    "積極的に発言する",
+    "退行する"
+  ],
+  answer: 3,
+  explanation: "SOSサインは①言い訳をする②逃避する③攻撃する④無感動になる⑤退行する、の5つです。「積極的に発言する」はSOSサインではありません。",
+  source: "JMAM メンバー指導レポート 問4(3)"
+},
+{
+  category: "メンバー指導",
+  question: "コンセプチュアル・スキルの説明として正しいものはどれか。",
+  choices: [
+    "部下を動かすための対人関係能力",
+    "業務を遂行するための専門技術",
+    "複雑な状況から本質を抽出し、戦略的意思決定を行う能力",
+    "データを分析して報告書を作成する能力",
+    "組織の規律を維持する能力"
+  ],
+  answer: 2,
+  explanation: "コンセプチュアル・スキルとは、複雑な状況から本質を抽出し、独自に問題を発見し広い視野の設計とその解決のための戦略的意思決定をし、目的の創造、計画、検証、言語表現ができる能力です。",
+  source: "JMAM メンバー指導レポート 問4(4)"
+},
+{
+  category: "メンバー指導",
+  question: "OJTの成否はどの過程にかかっているか。",
+  choices: [
+    "Do過程とSee過程",
+    "Plan過程とDo過程",
+    "Plan過程とSee過程",
+    "See過程とAction過程",
+    "Judge過程とAction過程"
+  ],
+  answer: 2,
+  explanation: "OJTの成否は、仕事の前のPlan過程、仕事の後のSee過程でどれだけ有効なOJTを行っているかにかかっています。",
+  source: "JMAM メンバー指導レポート 問2(1)(2)"
+},
+{
+  category: "メンバー指導",
+  question: "OJTのプロセスの順序として正しいものはどれか。（評価プロセスとは逆）",
+  choices: [
+    "業績 → 執務態度 → 能力",
+    "能力 → 執務態度 → 業績",
+    "執務態度 → 能力 → 業績",
+    "能力 → 業績 → 執務態度",
+    "業績 → 能力 → 執務態度"
+  ],
+  answer: 1,
+  explanation: "メンバーの仕事ぶりに対する「評価のプロセス」と「OJTのプロセス」は逆になります。OJTは能力→執務態度→業績というプロセスをとります。",
+  source: "JMAM メンバー指導レポート 問2(3)(4)(5)"
+},
+{
+  category: "メンバー指導",
+  question: "OJTとは何の略で、どこで行われるか。",
+  choices: [
+    "Off the Job Training／職場外",
+    "On the Job Training／職場組織内",
+    "Online Job Teaching／オンライン",
+    "Operational Joint Training／研修施設",
+    "Organization Job Training／本社"
+  ],
+  answer: 1,
+  explanation: "OJTは職場組織内で、仕事の熟練者が非熟練者に対して、知識・技術・経験を直接的に指導・伝授することで、日常業務を通じた訓練方法です。",
+  source: "JMAM メンバー指導レポート 問2(8)(9)(10)"
+},
+{
+  category: "メンバー指導",
+  question: "マネジャーが自分の権限を活用して強化すべきものは何か。",
+  choices: [
+    "売上目標の達成",
+    "業務の効率化",
+    "周囲との信頼関係",
+    "組織の規律",
+    "自己のスキルアップ"
+  ],
+  answer: 2,
+  explanation: "マネジャーは自分の権限を周囲との信頼関係を強化するために活用することが望まれます。仕事熱心であること、利他的であること、責任をとることは企業人として当たり前ですが、特にマネジャーには高いレベルが求められます。",
+  source: "JMAM メンバー指導レポート 問2(6)(7)"
+},
+{
+  category: "メンバー指導",
+  question: "メンバーの言動を理解するための留意すべき特徴として正しくないものはどれか。",
+  choices: [
+    "時と状況と場所によって矛盾した言動をとる",
+    "マネジャーの感情や動きに敏感に反応する",
+    "他のメンバーと同じと扱われることに抵抗を示す",
+    "自分の気持ちを言葉より態度や行動で表現する",
+    "常に論理的に行動し感情に左右されない"
+  ],
+  answer: 4,
+  explanation: "メンバーの言動の特徴は①矛盾した言動をとる②マネジャーの感情に敏感に反応③同じ扱いに抵抗④言葉より態度で表現、の4つです。「常に論理的に行動」はメンバーの特徴ではありません。",
+  source: "JMAM メンバー指導レポート 問3(2)"
+},
+
+// ===== 労務管理 =====
+{
+  category: "労務管理",
+  question: "労使協定の締結相手として正しいものはどれか。",
+  choices: [
+    "労働基準監督署",
+    "労働者の過半数で組織する労働組合、またはない場合は労働者の過半数を代表する者",
+    "会社の取締役会",
+    "人事部長",
+    "各部門の管理職全員"
+  ],
+  answer: 1,
+  explanation: "労使協定は、労働者の過半数で組織する労働組合がある場合はその労働組合、ない場合は労働者の過半数を代表する者と締結した書面による協定です。",
+  source: "アセスレポート解答案"
+},
+{
+  category: "労務管理",
+  question: "ポジティブアクションの説明として正しいものはどれか。",
+  choices: [
+    "社員のモチベーションを向上させる施策",
+    "職場の安全衛生を促進する取り組み",
+    "雇用における男女平等を実現するための積極的な取り組み",
+    "障がい者の雇用を促進する制度",
+    "高齢者の再雇用を支援する制度"
+  ],
+  answer: 2,
+  explanation: "ポジティブアクションとは、雇用における男女平等を実現するための積極的な取り組みです。社会に根ざす固定的な男女の役割分担意識に基づく慣習から、企業において女性が活躍しにくい状況を解消するためのものです。",
+  source: "アセスレポート解答案"
+},
+{
+  category: "労務管理",
+  question: "フレックスタイム制における「コアタイム」の説明として正しいものはどれか。",
+  choices: [
+    "残業が認められる時間帯",
+    "休憩を取らなければならない時間帯",
+    "労働者が必ず労働しなければならない時間帯",
+    "管理職が在席しなければならない時間帯",
+    "会議を行わなければならない時間帯"
+  ],
+  answer: 2,
+  explanation: "コアタイムとは、フレックスタイム制を実施している職場で、1日の労働時間のうち労働者が必ず労働しなければならない時間帯です。ただし、特段定めなくてもよいとされています。",
+  source: "アセスレポート解答案"
+},
+{
+  category: "労務管理",
+  question: "ノーワークノーペイの原則の説明として正しいものはどれか。",
+  choices: [
+    "残業をしても追加賃金は発生しないという原則",
+    "働かなかった分については賃金請求権がなく、使用者も支払い義務が発生しないという原則",
+    "無断欠勤の場合に解雇できるという原則",
+    "成果を出さなければ昇給しないという原則",
+    "試用期間中は最低賃金以下でもよいという原則"
+  ],
+  answer: 1,
+  explanation: "ノーワークノーペイの原則とは、欠勤・早退の場合で働かなかった分については、労働者は賃金請求権がなく、使用者も支払い義務が発生しないという原則です。",
+  source: "アセスレポート解答案"
+},
+{
+  category: "労務管理",
+  question: "年次有給休暇の届出に関して正しいものはどれか。",
+  choices: [
+    "1ヶ月前までに届け出が必要",
+    "1週間前までに届け出が必要",
+    "前週末までに届け出が必要",
+    "前日までに届け出を行えば取得可能",
+    "当日の朝までに届け出ればよい"
+  ],
+  answer: 3,
+  explanation: "労務管理上の法的ルールとして、前日までに届け出を行えば年次有給休暇を取得することは可能です。「前週末までに届出を行うように」という指導自体は悪くありませんが、前日の届出でも法的には認めなければなりません。",
+  source: "アセスレポート解答案 - 文章問題 問1"
+},
+{
+  category: "労務管理",
+  question: "前日に有給休暇の届出があった場合、管理職としての正しい対応はどれか。",
+  choices: [
+    "業務に影響があるため拒否する",
+    "時期変更権を行使して別の日に変更させる",
+    "有給を認め、スケジュール変更の影響を洗い出してリカバリー計画を立てる",
+    "上長に相談してから回答する",
+    "始末書の提出と引き換えに認める"
+  ],
+  answer: 2,
+  explanation: "前日までに届け出があれば有給を認める必要があります。スケジュール変更により影響が出るという理由は時期変更権の行使事由に該当しません。影響の洗い出しとリカバリー計画を立て、適切な業務遂行を図ることが管理能力の一つです。",
+  source: "アセスレポート解答案 - 文章問題 問2"
+},
+{
+  category: "労務管理",
+  question: "コアタイムについて正しいものはどれか。",
+  choices: [
+    "フレックスタイム制では必ずコアタイムを設定しなければならない",
+    "コアタイムは法律で最低4時間と定められている",
+    "コアタイムは特段定めなくてもよい",
+    "コアタイムは管理職のみに適用される",
+    "コアタイムは午前中に限定される"
+  ],
+  answer: 2,
+  explanation: "コアタイムは特段定めなくてもよいとされています。フレックスタイム制でコアタイムを設定するかどうかは任意です。",
+  source: "アセスレポート解答案"
+},
+
+// ===== 追加: 計算問題 =====
+{
+  category: "計数管理",
+  question: "4月1日に500個(単価100円)購入、4月10日に80個(単価120円)購入。4月12日に90個払出す場合、先入先出法での月間材料費はいくらか。",
+  choices: [
+    "8,800円",
+    "9,000円",
+    "9,600円",
+    "10,600円",
+    "12,000円"
+  ],
+  answer: 1,
+  explanation: "先入先出法では先に購入した材料から払い出します。90個は全て4月1日購入分(単価100円)から払出すため、100円×90個＝9,000円です。",
+  source: "計数管理 問題レポート1,2章 問3(19)"
+},
+{
+  category: "計数管理",
+  question: "製品Aの作業時間20時間、製品Bの作業時間10時間。間接労務費合計3,000千円を作業時間基準で配賦した場合、製品Aの間接労務費はいくらか。",
+  choices: [
+    "1,000千円",
+    "1,500千円",
+    "2,000千円",
+    "2,500千円",
+    "3,000千円"
+  ],
+  answer: 2,
+  explanation: "配賦基準は作業時間なので、A:B＝20:10＝2:1。製品Aの間接労務費＝3,000千円×2/3＝2,000千円です。",
+  source: "計数管理 問題レポート1,2章 問3(20)"
+},
+{
+  category: "計数管理",
+  question: "月初仕掛品材料費420,000円、今月投入分600,000円、完成品数量230個、仕掛品数量20個の場合、完成品原価はいくらか。",
+  choices: [
+    "81,600円",
+    "122,400円",
+    "886,957円",
+    "938,400円",
+    "1,020,000円"
+  ],
+  answer: 3,
+  explanation: "完成品原価＝インプット総額(420,000+600,000)×230個/250個＝1,020,000×230/250＝938,400円です。",
+  source: "計数管理 問題レポート1,2章 問3(22)"
+},
+{
+  category: "計数管理",
+  question: "上記の条件で仕掛品原価はいくらか。（インプット総額1,020,000円、仕掛品20個、合計250個）",
+  choices: [
+    "40,800円",
+    "81,600円",
+    "122,400円",
+    "163,200円",
+    "204,000円"
+  ],
+  answer: 1,
+  explanation: "仕掛品原価＝インプット総額1,020,000円×20個/250個＝81,600円です。",
+  source: "計数管理 問題レポート1,2章 問3(23)"
+},
+{
+  category: "計数管理",
+  question: "製造経費のうち「測定経費」に分類されるものはどれか。",
+  choices: [
+    "外注加工費",
+    "減価償却費",
+    "電力料",
+    "棚卸減耗費",
+    "修繕費"
+  ],
+  answer: 2,
+  explanation: "測定経費は電力料、ガス代、水道代などです。外注加工費は支払経費、減価償却費は月割経費、棚卸減耗費は発生経費に分類されます。",
+  source: "計数管理 問題レポート1,2章 問2(16)"
+},
+{
+  category: "計数管理",
+  question: "製造経費のうち「発生経費」に分類されるものはどれか。",
+  choices: [
+    "電力料",
+    "販促費",
+    "パート・アルバイト代",
+    "棚卸減耗費",
+    "賃借料"
+  ],
+  answer: 3,
+  explanation: "発生経費は棚卸減耗費、仕損費などです。電力料は測定経費、賃借料は月割経費です。",
+  source: "計数管理 問題レポート1,2章 問2(17)"
+},
+{
+  category: "計数管理",
+  question: "製造経費のうち「月割経費」に分類されるものはどれか。",
+  choices: [
+    "外注加工費",
+    "電力料",
+    "減価償却費",
+    "棚卸減耗費",
+    "修繕費"
+  ],
+  answer: 2,
+  explanation: "月割経費は賃借料、減価償却費、火災保険料、固定資産税などです。",
+  source: "計数管理 問題レポート1,2章 問2(15)"
+},
+{
+  category: "計数管理",
+  question: "業務改善の説明として誤っているものはどれか。",
+  choices: [
+    "業務の実態把握は改善プロセスのなかで最も重要かつ難しい",
+    "業務の実態把握と問題点の把握を合わせて現状分析と呼ぶ",
+    "改善案の立案は担当者の思いつきが最も重要である",
+    "実施定着化では粘り強い改善案の手直しが必要",
+    "上記のうち誤りは1つだけである"
+  ],
+  answer: 2,
+  explanation: "「改善案の立案は思いつきに頼ってもうまくいかず、ほかの改善事例についての情報収集や発想力が重要」です。担当者の思いつきが最も重要という説明は誤りです。",
+  source: "計数管理 問題レポート3,4章 問3(24)"
+},
+{
+  category: "計数管理",
+  question: "ポートフォリオ分析は別名何と呼ばれるか。",
+  choices: [
+    "ABC分析",
+    "クロス分析",
+    "SWOT分析",
+    "パレート分析",
+    "回帰分析"
+  ],
+  answer: 1,
+  explanation: "ポートフォリオ分析はクロス分析とも呼ばれ、2つの視点を使って分析する手法です。",
+  source: "計数管理 問題レポート3,4章 問1(6)"
+},
+{
+  category: "計数管理",
+  question: "ワークサンプリング手法の説明として正しいものはどれか。",
+  choices: [
+    "全ての作業を連続して観測し記録する方法",
+    "瞬間的に観測し、サンプリングデータから全体を推測する方法",
+    "作業者自身に記録させる方法",
+    "ビデオ撮影により分析する方法",
+    "統計ソフトを使って自動分析する方法"
+  ],
+  answer: 1,
+  explanation: "ワークサンプリング手法とは、人が行っている仕事の種類や機械の稼働状況などを瞬間的に観測し、そのサンプリングデータをもとに全体の仕事量や稼働状況を推測する方法です。",
+  source: "計数管理 問題レポート3,4章 問1(7)"
+},
+{
+  category: "計数管理",
+  question: "在庫回転率を高めるための方法として正しいものはどれか。",
+  choices: [
+    "販売数を増やすか、在庫数を減らす",
+    "仕入れ価格を下げる",
+    "固定費を削減する",
+    "変動費を削減する",
+    "販売単価を上げる"
+  ],
+  answer: 0,
+  explanation: "在庫回転率を高めるためには、①販売数を増やすか②在庫数を減らす必要があります。",
+  source: "計数入門コース 第2単位 レポート解説 (35)(36)"
+},
+{
+  category: "計数管理",
+  question: "ラインバランス効率の値について正しいものはどれか。",
+  choices: [
+    "0に近いほどよい",
+    "50%が理想的",
+    "100に近いほどよい状態",
+    "200%以上が望ましい",
+    "数値の大小は関係ない"
+  ],
+  answer: 2,
+  explanation: "ラインバランス効率は、100に近いほどよい状態であるといえます。",
+  source: "計数入門コース 第2単位 レポート解説 (37)"
+},
+{
+  category: "計数管理",
+  question: "増分原価の説明として正しいものはどれか。",
+  choices: [
+    "すでに支出済みの原価",
+    "何らかの経営判断により増加（または減少）する分の原価",
+    "固定費の一部",
+    "減価償却費のこと",
+    "標準原価と実際原価の差"
+  ],
+  answer: 1,
+  explanation: "増加（または減少）する分の原価を増分原価（または減分原価）と呼びます。「全部原価」は誤りです。",
+  source: "計数入門コース 第2単位 レポート解説 (3)"
+}
+];
+
+// ===== APP STATE =====
+let state = {
+  mode: 'random',
+  activeCategories: new Set(),
+  totalAnswered: 0,
+  correctAnswered: 0,
+  wrongAnswered: 0,
+  currentQuestion: null,
+  answered: false,
+  history: [],
+  wrongQuestions: [],
+  sequentialIndex: 0,
+  usedIndices: new Set()
+};
+
+// ===== CATEGORIES =====
+const categories = [...new Set(questions.map(q => q.category))];
+
+function init() {
+  // Init all categories as active
+  categories.forEach(c => state.activeCategories.add(c));
+  renderCategoryFilter();
+  nextQuestion();
+}
+
+function renderCategoryFilter() {
+  const el = document.getElementById('categoryFilter');
+  el.innerHTML = `<button class="filter-btn active" onclick="toggleAllCategories(this)">全カテゴリ</button>` +
+    categories.map(c =>
+      `<button class="filter-btn active" onclick="toggleCategory('${c}', this)">${c}</button>`
+    ).join('');
+}
+
+function toggleCategory(cat, btn) {
+  if (state.activeCategories.has(cat)) {
+    state.activeCategories.delete(cat);
+    btn.classList.remove('active');
+  } else {
+    state.activeCategories.add(cat);
+    btn.classList.add('active');
+  }
+  updateAllBtn();
+  state.usedIndices.clear();
+  state.sequentialIndex = 0;
+}
+
+function toggleAllCategories(btn) {
+  const allActive = state.activeCategories.size === categories.length;
+  const buttons = document.querySelectorAll('.filter-btn');
+  if (allActive) {
+    state.activeCategories.clear();
+    buttons.forEach(b => b.classList.remove('active'));
+  } else {
+    categories.forEach(c => state.activeCategories.add(c));
+    buttons.forEach(b => b.classList.add('active'));
+  }
+  state.usedIndices.clear();
+  state.sequentialIndex = 0;
+}
+
+function updateAllBtn() {
+  const allBtn = document.querySelector('.filter-btn');
+  if (state.activeCategories.size === categories.length) {
+    allBtn.classList.add('active');
+  } else {
+    allBtn.classList.remove('active');
+  }
+}
+
+function setMode(mode) {
+  state.mode = mode;
+  state.usedIndices.clear();
+  state.sequentialIndex = 0;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+function getFilteredQuestions() {
+  return questions.filter(q => state.activeCategories.has(q.category));
+}
+
+function pickQuestion() {
+  const filtered = getFilteredQuestions();
+  if (filtered.length === 0) return null;
+
+  if (state.mode === 'weak' && state.wrongQuestions.length > 0) {
+    // Pick from wrong questions that match active categories
+    const weakFiltered = state.wrongQuestions.filter(q => state.activeCategories.has(q.category));
+    if (weakFiltered.length > 0 && Math.random() < 0.7) {
+      return weakFiltered[Math.floor(Math.random() * weakFiltered.length)];
+    }
+  }
+
+  if (state.mode === 'sequential') {
+    const idx = state.sequentialIndex % filtered.length;
+    state.sequentialIndex++;
+    return filtered[idx];
+  }
+
+  // Random mode - try to avoid repeats
+  const filteredIndices = [];
+  questions.forEach((q, i) => {
+    if (state.activeCategories.has(q.category)) filteredIndices.push(i);
+  });
+
+  const unused = filteredIndices.filter(i => !state.usedIndices.has(i));
+  if (unused.length === 0) {
+    state.usedIndices.clear();
+    const idx = filteredIndices[Math.floor(Math.random() * filteredIndices.length)];
+    state.usedIndices.add(idx);
+    return questions[idx];
+  }
+
+  const idx = unused[Math.floor(Math.random() * unused.length)];
+  state.usedIndices.add(idx);
+  return questions[idx];
+}
+
+function nextQuestion() {
+  state.answered = false;
+  state.currentQuestion = pickQuestion();
+  if (!state.currentQuestion) {
+    document.getElementById('quizArea').innerHTML =
+      '<div class="question-card"><p style="text-align:center;color:var(--muted);">カテゴリを選択してください</p></div>';
+    return;
+  }
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = state.currentQuestion;
+  const labels = ['A', 'B', 'C', 'D', 'E'];
+  const area = document.getElementById('quizArea');
+
+  area.innerHTML = `
+    <div class="question-card">
+      <div class="question-meta">
+        <span class="q-number">第 ${state.totalAnswered + 1} 問</span>
+        <span class="q-category">${q.category}</span>
+      </div>
+      <div class="question-text">${q.question}</div>
+      <div class="choices">
+        ${q.choices.map((c, i) => `
+          <button class="choice-btn" onclick="selectAnswer(${i})" id="choice-${i}">
+            <span class="choice-label">${labels[i]}</span>
+            <span class="choice-text">${c}</span>
+          </button>
+        `).join('')}
+      </div>
+      <div class="result-box" id="resultBox"></div>
+      <button class="next-btn" id="nextBtn" onclick="nextQuestion()" disabled>次の問題へ</button>
+    </div>
+  `;
+}
+
+function selectAnswer(idx) {
+  if (state.answered) return;
+  state.answered = true;
+  state.totalAnswered++;
+
+  const q = state.currentQuestion;
+  const isCorrect = idx === q.answer;
+
+  if (isCorrect) {
+    state.correctAnswered++;
+    // Remove from wrong questions if it was there
+    state.wrongQuestions = state.wrongQuestions.filter(wq => wq !== q);
+  } else {
+    state.wrongAnswered++;
+    if (!state.wrongQuestions.includes(q)) {
+      state.wrongQuestions.push(q);
+    }
+  }
+
+  // Style choices
+  const labels = ['A', 'B', 'C', 'D', 'E'];
+  for (let i = 0; i < q.choices.length; i++) {
+    const btn = document.getElementById(`choice-${i}`);
+    btn.classList.add('disabled');
+    if (i === q.answer) {
+      btn.classList.add('correct-answer');
+    } else if (i === idx && !isCorrect) {
+      btn.classList.add('wrong-answer');
+    } else {
+      btn.classList.add('dimmed');
+    }
+  }
+
+  // Show result
+  const resultBox = document.getElementById('resultBox');
+  resultBox.className = `result-box show ${isCorrect ? 'correct-result' : 'wrong-result'}`;
+  resultBox.innerHTML = `
+    <div class="result-title ${isCorrect ? 'correct-title' : 'wrong-title'}">
+      ${isCorrect ? '正解!' : `不正解 (正解: ${labels[q.answer]})`}
+    </div>
+    <div class="result-explanation">${q.explanation}</div>
+    <div class="result-source">出典: ${q.source}</div>
+  `;
+
+  // Enable next button
+  document.getElementById('nextBtn').disabled = false;
+
+  // Update stats
+  updateStats();
+
+  // Update history
+  state.history.unshift({
+    correct: isCorrect,
+    text: q.question.substring(0, 40) + '...',
+    category: q.category
+  });
+  if (state.history.length > 10) state.history.pop();
+  renderHistory();
+}
+
+function updateStats() {
+  document.getElementById('totalCount').textContent = state.totalAnswered;
+  document.getElementById('correctCount').textContent = state.correctAnswered;
+  document.getElementById('wrongCount').textContent = state.wrongAnswered;
+  const acc = state.totalAnswered > 0
+    ? Math.round(state.correctAnswered / state.totalAnswered * 100)
+    : '--';
+  document.getElementById('accuracy').textContent = acc + '%';
+}
+
+function renderHistory() {
+  const panel = document.getElementById('historyPanel');
+  const list = document.getElementById('historyList');
+  if (state.history.length === 0) {
+    panel.style.display = 'none';
+    return;
+  }
+  panel.style.display = 'block';
+  list.innerHTML = state.history.map(h => `
+    <div class="history-item">
+      <span class="history-icon">${h.correct ? '\u2705' : '\u274C'}</span>
+      <span class="history-text">${h.text}</span>
+      <span class="q-category" style="font-size:0.7rem;">${h.category}</span>
+    </div>
+  `).join('');
+}
+
+// Initialize
+init();
+</script>
+</body>
+</html>
