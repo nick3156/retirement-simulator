@@ -1090,28 +1090,6 @@ const CALC_TEMPLATES = [
   {
     category: "計数管理",
     generate: function() {
-      const customers = (Math.floor(Math.random()*8)+3)*100; // 300-1000
-      const rate = [20,25,30,35,40][Math.floor(Math.random()*5)];
-      const items = [10,15,20,25,30][Math.floor(Math.random()*5)];
-      const price = (Math.floor(Math.random()*4)+1)*100; // 100-400
-      const ans = customers * (rate/100) * items * price;
-      const choices = [ans, customers*items*price, customers*(rate/100)*price, customers*(rate/100)*items, ans/2];
-      const unique = [...new Set(choices)];
-      while(unique.length < 5) unique.push(ans + unique.length * 10000);
-      const sorted = shuffleArray(unique.slice(0,5));
-      return {
-        category: "計数管理",
-        question: `来店客数${customers}人、買上率${rate}%、買上点数${items}個、1点あたり平均単価${price}円の場合、売上高はいくらか。`,
-        choices: sorted.map(v => v.toLocaleString() + "円"),
-        answer: sorted.indexOf(ans),
-        explanation: `売上高 = ${customers} × ${rate/100} × ${items} × ${price} = ${ans.toLocaleString()}円`,
-        source: "計数管理問題解説3,4章 - 売上高計算"
-      };
-    }
-  },
-  {
-    category: "計数管理",
-    generate: function() {
       const cost = (Math.floor(Math.random()*4)+1)*100; // 100-400万円
       const years = [3,4,5,6,8,10][Math.floor(Math.random()*6)];
       const depRate = (1/years);
