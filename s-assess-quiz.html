@@ -4068,38 +4068,6 @@ function pickQuestion() {
 }
 
 // ===== 正誤反転: 「正しいもの」→「誤っているもの」に自動変換 =====
-const INVERT_PATTERNS = [
-  { from: "として正しいものはどれか。", to: "として誤っているものはどれか。" },
-  { from: "として正しいものはどれか", to: "として誤っているものはどれか" },
-  { from: "正しいものはどれか。", to: "誤っているものはどれか。" },
-  { from: "正しいものはどれか", to: "誤っているものはどれか" },
-];
-
-function canInvertQuestion(q) {
-  // Only invert questions that ask "正しいもの" and have clear wrong answers
-  // Don't invert calculation questions (numbers in question), don't invert "誤っている" questions
-  if (q.question.includes("誤って") || q.question.includes("含まれない") || q.question.includes("該当しない")) return false;
-  if (q.question.includes("いくら") || q.question.includes("何%") || q.question.includes("何個") || q.question.includes("何分")) return false;
-  return INVERT_PATTERNS.some(p => q.question.includes(p.from));
-}
-
-function invertQuestion(q) {
-  // Deep copy
-  const inv = JSON.parse(JSON.stringify(q));
-  // Flip question text
-  for (const p of INVERT_PATTERNS) {
-    if (inv.question.includes(p.from)) {
-      inv.question = inv.question.replace(p.from, p.to);
-      break;
-    }
-  }
-  // Pick a random wrong choice as the new "correct" answer
-  const wrongIndices = [0,1,2,3,4].filter(i => i !== q.answer);
-  inv.answer = wrongIndices[Math.floor(Math.random() * wrongIndices.length)];
-  inv.explanation = `【反転問題】正しい答えは「${q.choices[q.answer]}」です。${q.explanation}`;
-  inv._inverted = true;
-  return inv;
-}
 
 // ===== 計算問題ランダム化テンプレート =====
 const CALC_TEMPLATES = [
@@ -4222,10 +4190,6 @@ function nextQuestion() {
     const tpl = CALC_TEMPLATES[Math.floor(Math.random() * CALC_TEMPLATES.length)];
     state.currentQuestion = tpl.generate();
     state.currentQuestion._generated = true;
-  }
-  // 25% chance to invert a "正しいもの" question
-  else if (!state.currentQuestion._generated && canInvertQuestion(state.currentQuestion) && Math.random() < 0.25) {
-    state.currentQuestion = invertQuestion(state.currentQuestion);
   }
 
   renderQuestion();
