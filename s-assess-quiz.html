@@ -783,7 +783,15 @@ const questions = [
 {category:"メンバー指導",question:"ほめる効果が発揮されるのはどのような場合か。",choices:["マネジャーが大勢の前で公式にほめたとき","金銭的報奨と合わせてほめたとき","相手が認めてもらいたいと思っていることをほめられたと自ら納得したとき","繰り返し何度もほめたとき","他のメンバーと比較してほめたとき"],answer:2,explanation:"ほめる効果が発揮されるのは「相手が認めてもらいたいと思っていることをほめられたと自ら納得したとき」。",source:"メンバー指導（文字起こし） 第3章 ほめるとおだてるの違い"},
 {category:"メンバー指導",question:"叱り方の原則として正しくないものはどれか。",choices:["叱る内容・動機・目的を明らかにする","教育的配慮をし相手が聴く耳をもてる時と場合を選ぶ","自尊心を傷つけないようにする","過去の失敗も含めて包括的に指摘する","短く簡単明瞭であること"],answer:3,explanation:"叱り方の原則では「特定の行為を叱る。相手の全人格を叱ってはいけない」とあり、過去の失敗を包括的に指摘することは原則に反する。",source:"メンバー指導（文字起こし） 第3章 叱り方の原則"},
 {category:"メンバー指導",question:"信頼感をもたれるための3つの要件として正しいものはどれか。",choices:["仕事熱心であること、利他的であること、責任をとること","正確であること、迅速であること、丁寧であること","知識があること、技術があること、経験があること","計画性があること、実行力があること、分析力があること","指導力があること、判断力があること、決断力があること"],answer:0,explanation:"信頼感をもたれるための要件は「仕事熱心であること」「利他的であること」「責任をとること」の3つ。",source:"メンバー指導（文字起こし） 第4章 信頼感をもたれるための要件"},
-
+// ===== 計算問題（固定） =====
+{category:"計数管理",question:"A社の営業キャッシュフローは800万円、投資キャッシュフローは-300万円である。フリーキャッシュフローはいくらか。",choices:["300万円","500万円","800万円","1,100万円","200万円"],answer:1,explanation:"フリーキャッシュフロー = 営業CF + 投資CF = 800 + (-300) = 500万円",source:"計数入門（文字起こし） 第1章 フリーキャッシュフロー"},
+{category:"計数管理",question:"B社の営業キャッシュフローは600万円、投資キャッシュフローは-400万円である。フリーキャッシュフローはいくらか。",choices:["400万円","600万円","1,000万円","200万円","100万円"],answer:3,explanation:"フリーキャッシュフロー = 営業CF + 投資CF = 600 + (-400) = 200万円",source:"計数入門（文字起こし） 第1章 フリーキャッシュフロー"},
+{category:"計数管理",question:"売上高10,000万円、変動費率60%、固定費2,000万円の場合、損益分岐点売上高はいくらか。",choices:["4,000万円","5,000万円","6,000万円","8,000万円","2,000万円"],answer:1,explanation:"損益分岐点売上高 = 固定費 ÷ (1 - 変動費率) = 2,000 ÷ 0.4 = 5,000万円",source:"計数入門（文字起こし） 第3章 損益分岐点"},
+{category:"計数管理",question:"売上高8,000万円、変動費率50%、固定費3,000万円の場合、損益分岐点売上高はいくらか。",choices:["3,000万円","4,000万円","5,000万円","6,000万円","8,000万円"],answer:3,explanation:"損益分岐点売上高 = 固定費 ÷ (1 - 変動費率) = 3,000 ÷ 0.5 = 6,000万円",source:"計数入門（文字起こし） 第3章 損益分岐点"},
+{category:"計数管理",question:"リードタイム3日、1日あたり平均販売数量8個、安全在庫5個の場合、発注日の適正在庫は何個か。",choices:["16個","24個","29個","32個","11個"],answer:2,explanation:"適正在庫 = リードタイム × 平均販売数量 + 安全在庫 = 3 × 8 + 5 = 29個",source:"計数入門（文字起こし） 第3章 適正在庫"},
+{category:"計数管理",question:"リードタイム2日、1日あたり平均販売数量10個、安全在庫4個の場合、発注日の適正在庫は何個か。",choices:["14個","20個","24個","16個","30個"],answer:2,explanation:"適正在庫 = リードタイム × 平均販売数量 + 安全在庫 = 2 × 10 + 4 = 24個",source:"計数入門（文字起こし） 第3章 適正在庫"},
+{category:"計数管理",question:"取得価格300万円、耐用年数5年の固定資産を定額法で償却した場合、1年目の減価償却費はいくらか。",choices:["30万円","50万円","60万円","75万円","100万円"],answer:2,explanation:"定額法: 償却率 = 1/5 = 0.2 → 300万円 × 0.2 = 60万円",source:"計数入門（文字起こし） 第3章 減価償却"},
+{category:"計数管理",question:"取得価格200万円、耐用年数4年の固定資産を定額法で償却した場合、1年目の減価償却費はいくらか。",choices:["25万円","40万円","50万円","66万円","100万円"],answer:2,explanation:"定額法: 償却率 = 1/4 = 0.25 → 200万円 × 0.25 = 50万円",source:"計数入門（文字起こし） 第3章 減価償却"},
 ];
 
 // ===== LOCALSTORAGE PERSISTENCE =====
@@ -1026,89 +1034,6 @@ function pickQuestion() {
 // ===== 正誤反転: 「正しいもの」→「誤っているもの」に自動変換 =====
 
 // ===== 計算問題ランダム化テンプレート =====
-const CALC_TEMPLATES = [
-  {
-    category: "計数管理",
-    generate: function() {
-      const cf1 = (Math.floor(Math.random()*8)+3)*100; // 営業CF: 300-1000
-      const cf2 = -(Math.floor(Math.random()*6)+1)*100; // 投資CF: -100〜-600
-      const ans = cf1 + cf2;
-      const choices = [ans - 200, ans, ans + 150, ans + 300, cf1].filter((v,i,a) => a.indexOf(v)===i);
-      while(choices.length < 5) choices.push(ans + (choices.length * 50));
-      const sorted = shuffleArray(choices.slice(0,5));
-      return {
-        category: "計数管理",
-        question: `A社の営業キャッシュフローは${cf1}万円、投資キャッシュフローは${cf2}万円である。フリーキャッシュフローはいくらか。`,
-        choices: sorted.map(v => v + "万円"),
-        answer: sorted.indexOf(ans),
-        explanation: `フリーキャッシュフロー = 営業CF + 投資CF = ${cf1} + (${cf2}) = ${ans}万円`,
-        source: "計数管理問題解説1,2章 - フリーキャッシュフロー"
-      };
-    }
-  },
-  {
-    category: "計数管理",
-    generate: function() {
-      const sales = (Math.floor(Math.random()*8)+5)*1000; // 5000-12000
-      const varRate = [50,55,60,65,70][Math.floor(Math.random()*5)];
-      const fixed = Math.floor(sales * (100-varRate)/100 * (0.5 + Math.random()*0.4) / 100) * 100;
-      const bep = Math.round(fixed / ((100-varRate)/100));
-      const choices = [bep, bep - 500, bep + 500, fixed, sales].filter((v,i,a) => a.indexOf(v)===i);
-      while(choices.length < 5) choices.push(bep + (choices.length * 250));
-      const sorted = shuffleArray(choices.slice(0,5));
-      return {
-        category: "計数管理",
-        question: `売上高${sales.toLocaleString()}万円、変動費率${varRate}%、固定費${fixed.toLocaleString()}万円の場合、損益分岐点売上高はいくらか。`,
-        choices: sorted.map(v => v.toLocaleString() + "万円"),
-        answer: sorted.indexOf(bep),
-        explanation: `損益分岐点売上高 = 固定費 ÷ (1 - 変動費率) = ${fixed.toLocaleString()} ÷ ${((100-varRate)/100)} = ${bep.toLocaleString()}万円`,
-        source: "計数管理問題解説3,4章 - 損益分岐点"
-      };
-    }
-  },
-  {
-    category: "計数管理",
-    generate: function() {
-      const lead = Math.floor(Math.random()*3)+2; // 2-4日
-      const daily = Math.floor(Math.random()*8)+3; // 3-10個
-      const safety = Math.floor(Math.random()*5)+2; // 2-6個
-      const ans = lead * daily + safety;
-      const choices = [ans, lead+daily+safety, lead*daily, daily*safety, ans+daily];
-      const unique = [...new Set(choices)];
-      while(unique.length < 5) unique.push(ans + unique.length * 2);
-      const sorted = shuffleArray(unique.slice(0,5));
-      return {
-        category: "計数管理",
-        question: `リードタイム${lead}日、1日あたり平均販売数量${daily}個、安全在庫${safety}個の場合、発注日の適正在庫は何個か。`,
-        choices: sorted.map(v => v + "個"),
-        answer: sorted.indexOf(ans),
-        explanation: `適正在庫 = リードタイム × 平均販売数量 + 安全在庫 = ${lead} × ${daily} + ${safety} = ${ans}個`,
-        source: "計数管理問題解説3,4章 - 適正在庫"
-      };
-    }
-  },
-  {
-    category: "計数管理",
-    generate: function() {
-      const cost = (Math.floor(Math.random()*4)+1)*100; // 100-400万円
-      const years = [3,4,5,6,8,10][Math.floor(Math.random()*6)];
-      const depRate = (1/years);
-      const ans = Math.round(cost * 10000 * depRate);
-      const choices = [ans, cost*10000, Math.round(ans/2), ans*2, Math.round(cost*10000/3)];
-      const unique = [...new Set(choices)];
-      while(unique.length < 5) unique.push(ans + unique.length * 10000);
-      const sorted = shuffleArray(unique.slice(0,5));
-      return {
-        category: "計数管理",
-        question: `取得価格${cost}万円、耐用年数${years}年の固定資産を定額法で償却した場合、1年目の減価償却費はいくらか。`,
-        choices: sorted.map(v => v.toLocaleString() + "円"),
-        answer: sorted.indexOf(ans),
-        explanation: `定額法: 償却率 = 1/${years} = ${depRate.toFixed(3)} → ${cost}万円 × ${depRate.toFixed(3)} = ${ans.toLocaleString()}円`,
-        source: "計数管理問題解説3,4章 - 減価償却"
-      };
-    }
-  },
-];
 
 function nextQuestion() {
   state.answered = false;
@@ -1117,13 +1042,6 @@ function nextQuestion() {
     document.getElementById('quizArea').innerHTML =
       '<div class="question-card"><p style="text-align:center;color:var(--muted);">カテゴリを選択してください</p></div>';
     return;
-  }
-
-  // 20% chance to use a random calculation template (if 計数管理 is active)
-  if (state.activeCategories.has("計数管理") && Math.random() < 0.2) {
-    const tpl = CALC_TEMPLATES[Math.floor(Math.random() * CALC_TEMPLATES.length)];
-    state.currentQuestion = tpl.generate();
-    state.currentQuestion._generated = true;
   }
 
   renderQuestion();
