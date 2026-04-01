@@ -4077,9 +4077,14 @@ function init() {
     state.streak = saved.streak || 0;
     state.maxStreak = saved.maxStreak || 0;
   }
-  // Init category stats
+  // Init category stats & restore selection
+  const savedCategories = loadCategorySelection();
   categories.forEach(c => {
-    state.activeCategories.add(c);
+    if (savedCategories) {
+      if (savedCategories.includes(c)) state.activeCategories.add(c);
+    } else {
+      state.activeCategories.add(c);
+    }
     if (!state.categoryStats[c]) {
       state.categoryStats[c] = { total: 0, correct: 0 };
     }
@@ -4132,10 +4137,12 @@ function updateStreakBanner() {
 function renderCategoryFilter() {
   const el = document.getElementById('categoryFilter');
   const totalQ = questions.length;
-  el.innerHTML = `<button class="filter-btn active" onclick="toggleAllCategories(this)">全カテゴリ <span class="filter-count">${totalQ}</span></button>` +
+  const allActive = state.activeCategories.size === categories.length;
+  el.innerHTML = `<button class="filter-btn${allActive ? ' active' : ''}" onclick="toggleAllCategories(this)">全カテゴリ <span class="filter-count">${totalQ}</span></button>` +
     categories.map(c => {
       const count = questions.filter(q => q.category === c).length;
-      return `<button class="filter-btn active" onclick="toggleCategory('${c}', this)">${c} <span class="filter-count">${count}</span></button>`;
+      const active = state.activeCategories.has(c);
+      return `<button class="filter-btn${active ? ' active' : ''}" onclick="toggleCategory('${c}', this)">${c} <span class="filter-count">${count}</span></button>`;
     }).join('');
 }
 
@@ -4150,6 +4157,8 @@ function toggleCategory(cat, btn) {
   updateAllBtn();
   state.usedIndices.clear();
   state.sequentialIndex = 0;
+  saveCategorySelection();
+  nextQuestion();
 }
 
 function toggleAllCategories(btn) {
@@ -4164,6 +4173,20 @@ function toggleAllCategories(btn) {
   }
   state.usedIndices.clear();
   state.sequentialIndex = 0;
+  saveCategorySelection();
+  nextQuestion();
+}
+
+function saveCategorySelection() {
+  localStorage.setItem('quiz-active-categories', JSON.stringify([...state.activeCategories]));
+}
+
+function loadCategorySelection() {
+  try {
+    const raw = localStorage.getItem('quiz-active-categories');
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch(e) { return null; }
 }
 
 function updateAllBtn() {
