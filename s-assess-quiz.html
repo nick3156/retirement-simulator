@@ -440,22 +440,6 @@
   .action-btn.export { background: #64748b; }
   .action-btn.reset { background: var(--wrong); }
 
-  /* ===== CONFETTI ===== */
-  .confetti-container {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none; z-index: 999; overflow: hidden;
-  }
-  .confetti-piece {
-    position: absolute;
-    width: 8px; height: 8px;
-    border-radius: 2px;
-    animation: confettiFall 1.2s ease forwards;
-  }
-  @keyframes confettiFall {
-    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
-    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-  }
-
   @media (max-width: 480px) {
     .container { padding: 12px 10px 32px; }
     .question-card { padding: 20px 16px; border-radius: 14px; }
@@ -468,12 +452,11 @@
 </style>
 </head>
 <body>
-<div class="confetti-container" id="confettiContainer"></div>
 <div class="container">
   <header>
     <div class="header-left">
       <h1>Sアセス一次試験 対策クイズ</h1>
-      <p>全316問 | ソース資料に基づく5択問題</p>
+      <p id="headerSub">ソース資料に基づく5択問題</p>
     </div>
     <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="テーマ切替">🌙</button>
   </header>
@@ -4089,6 +4072,7 @@ function init() {
       state.categoryStats[c] = { total: 0, correct: 0 };
     }
   });
+  document.getElementById('headerSub').textContent = `全${questions.length}問 | ソース資料に基づく5択問題`;
   renderCategoryFilter();
   updateStats();
   renderStatsPanel();
@@ -4106,21 +4090,6 @@ function toggleTheme() {
     document.getElementById('themeToggle').textContent = '☀️';
     localStorage.setItem('quiz-theme', 'dark');
   }
-}
-
-function spawnConfetti() {
-  const container = document.getElementById('confettiContainer');
-  const colors = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#a855f7', '#ec4899'];
-  for (let i = 0; i < 24; i++) {
-    const piece = document.createElement('div');
-    piece.className = 'confetti-piece';
-    piece.style.left = Math.random() * 100 + '%';
-    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
-    piece.style.animationDelay = (Math.random() * 0.5) + 's';
-    piece.style.animationDuration = (1 + Math.random() * 1.5) + 's';
-    container.appendChild(piece);
-  }
-  setTimeout(() => { container.innerHTML = ''; }, 2500);
 }
 
 function updateStreakBanner() {
@@ -4431,7 +4400,6 @@ function selectAnswer(displayIdx) {
     state.streak++;
     if (state.streak > state.maxStreak) state.maxStreak = state.streak;
     state.wrongQuestions = state.wrongQuestions.filter(wq => wq !== q);
-    spawnConfetti();
   } else {
     state.wrongAnswered++;
     state.streak = 0;
@@ -4478,7 +4446,7 @@ function selectAnswer(displayIdx) {
   // Animate the question card
   const card = document.querySelector('.question-card');
   if (card) {
-    card.style.animation = isCorrect ? 'correctPop 0.4s ease' : 'wrongShake 0.4s ease';
+    if (!isCorrect) card.style.animation = 'wrongShake 0.4s ease';
   }
 
   // Show result
@@ -4486,7 +4454,7 @@ function selectAnswer(displayIdx) {
   resultBox.className = `result-box show ${isCorrect ? 'correct-result' : 'wrong-result'}`;
   resultBox.innerHTML = `
     <div class="result-title ${isCorrect ? 'correct-title' : 'wrong-title'}" style="animation:fadeUp 0.3s ease">
-      ${isCorrect ? '🎉 正解!' : `😢 不正解 (正解: ${labels[correctDisplayIdx]})`}
+      ${isCorrect ? '正解!' : `不正解 (正解: ${labels[correctDisplayIdx]})`}
     </div>
     <div class="result-explanation">${q.explanation}</div>
     <div class="result-source">出典: ${q.source}</div>
