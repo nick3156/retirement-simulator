@@ -828,6 +828,8 @@ function saveData() {
     sessions: state.sessions,
     // Wrong question indices for weak mode
     wrongIndices: state.wrongQuestions.map(q => questions.indexOf(q)).filter(i => i >= 0),
+    // Used indices for no-repeat guarantee
+    usedIndicesArr: Array.from(state.usedIndices),
     // Streak data
     streak: state.streak,
     maxStreak: state.maxStreak,
@@ -883,6 +885,7 @@ function init() {
     state.wrongQuestions = (saved.wrongIndices || []).map(i => questions[i]).filter(Boolean);
     state.streak = saved.streak || 0;
     state.maxStreak = saved.maxStreak || 0;
+    state.usedIndices = new Set(saved.usedIndicesArr || []);
   }
   // Init category stats & restore selection
   const savedCategories = loadCategorySelection();
@@ -1008,10 +1011,15 @@ function pickQuestion() {
   if (filtered.length === 0) return null;
 
   if (state.mode === 'weak' && state.wrongQuestions.length > 0) {
-    // Pick from wrong questions that match active categories
+    // Pick from wrong questions that match active categories, respecting no-repeat
     const weakFiltered = state.wrongQuestions.filter(q => state.activeCategories.has(q.category));
     if (weakFiltered.length > 0 && Math.random() < 0.7) {
-      return weakFiltered[Math.floor(Math.random() * weakFiltered.length)];
+      const weakUnused = weakFiltered.filter(q => !state.usedIndices.has(questions.indexOf(q)));
+      const pool = weakUnused.length > 0 ? weakUnused : weakFiltered;
+      if (weakUnused.length === 0) state.usedIndices.clear();
+      const pick = pool[Math.floor(Math.random() * pool.length)];
+      state.usedIndices.add(questions.indexOf(pick));
+      return pick;
     }
   }
 
