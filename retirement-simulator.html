@@ -414,12 +414,39 @@ canvas#chart {
     'inflation','pension','pensionAge','lifeExpect','targetAsset'
   ];
 
+  const STORAGE_KEY = 'retirement-sim-values';
+
+  function saveAll() {
+    const obj = {};
+    fields.forEach(id => { obj[id] = getVal(id); });
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(obj)); } catch(e) {}
+  }
+
+  function loadAll() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      if (!saved) return;
+      fields.forEach(id => {
+        if (saved[id] == null) return;
+        const slider = document.getElementById(id);
+        const input = document.getElementById(id + '_val');
+        if (!slider || !input) return;
+        const v = Math.max(parseFloat(slider.min), Math.min(parseFloat(slider.max), saved[id]));
+        slider.value = v;
+        input.value = v;
+      });
+    } catch(e) {}
+  }
+
+  loadAll();
+
   fields.forEach(id => {
     const slider = document.getElementById(id);
     const input = document.getElementById(id + '_val');
     if (!slider || !input) return;
     slider.addEventListener('input', () => {
       input.value = slider.value;
+      saveAll();
       scheduleUpdate();
     });
     input.addEventListener('input', () => {
@@ -428,6 +455,7 @@ canvas#chart {
         v = Math.max(parseFloat(slider.min), Math.min(parseFloat(slider.max), v));
         slider.value = v;
       }
+      saveAll();
       scheduleUpdate();
     });
     input.addEventListener('change', () => {
@@ -436,6 +464,7 @@ canvas#chart {
       v = Math.max(parseFloat(slider.min), Math.min(parseFloat(slider.max), v));
       input.value = v;
       slider.value = v;
+      saveAll();
       scheduleUpdate();
     });
   });
