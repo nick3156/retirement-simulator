@@ -3,38 +3,99 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>老後資金シミュレーター</title>
+<meta name="theme-color" content="#f8fafc">
+<title>リタイアシミュレーター</title>
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f8fafc;
+  --bg-grad-a: #ecfdf5;
+  --bg-grad-b: #eff6ff;
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --surface-3: #f1f5f9;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --text-2: #475569;
+  --text-3: #94a3b8;
+  --primary: #059669;
+  --primary-strong: #047857;
+  --primary-soft: #d1fae5;
+  --blue: #2563eb;
+  --blue-soft: #dbeafe;
+  --warn: #d97706;
+  --warn-soft: #fef3c7;
+  --danger: #dc2626;
+  --danger-soft: #fee2e2;
+  --radius-xl: 26px;
+  --radius-lg: 18px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+  --shadow-sm: 0 1px 2px rgba(15,23,42,0.04);
+  --shadow: 0 2px 10px rgba(15,23,42,0.05), 0 1px 2px rgba(15,23,42,0.04);
+  --shadow-lg: 0 12px 36px rgba(15,23,42,0.10), 0 2px 6px rgba(15,23,42,0.04);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Kaku Gothic ProN', sans-serif;
-  background: #f5f5f7;
-  color: #1d1d1f;
-  line-height: 1.6;
-  padding: 0 0 60px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+  color: var(--text);
+  line-height: 1.55;
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse 85% 55% at 50% -10%, var(--bg-grad-a), transparent 60%),
+    radial-gradient(ellipse 70% 45% at 85% 15%, var(--bg-grad-b), transparent 60%);
+  background-attachment: fixed;
+  min-height: 100vh;
+  padding-bottom: 56px;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "palt";
 }
-.container { max-width: 900px; margin: 0 auto; padding: 0 20px; }
-header {
-  text-align: center;
-  padding: 40px 20px 30px;
+
+.container { max-width: 880px; margin: 0 auto; padding: 0 20px; }
+
+header { text-align: center; padding: 56px 20px 36px; }
+header .badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--primary);
+  background: var(--primary-soft);
+  padding: 6px 14px;
+  border-radius: 100px;
+  margin-bottom: 16px;
 }
-header h1 { font-size: 2rem; font-weight: 700; margin-bottom: 6px; }
-header p { color: #6e6e73; font-size: 1.05rem; }
+header h1 {
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: -0.028em;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+header p { color: var(--text-2); font-size: 1rem; }
 
 .card {
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
   padding: 28px;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow);
 }
 .card h2 {
-  font-size: 1.15rem;
-  font-weight: 600;
-  margin-bottom: 20px;
-  color: #1d1d1f;
-  border-bottom: 2px solid #f0f0f2;
-  padding-bottom: 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  margin-bottom: 22px;
 }
 
 .slider-group { margin-bottom: 22px; }
@@ -43,219 +104,361 @@ header p { color: #6e6e73; font-size: 1.05rem; }
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   font-size: 0.95rem;
   font-weight: 500;
 }
 .slider-label .label-right {
   display: flex;
-  align-items: center;
-  gap: 4px;
+  align-items: baseline;
+  gap: 5px;
   flex-shrink: 0;
 }
 .slider-value-input {
-  width: 100px;
+  width: 96px;
   text-align: right;
   font-size: 1rem;
-  font-weight: 600;
-  color: #2563eb;
-  border: 1.5px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 4px 8px;
-  background: #f9fafb;
+  font-weight: 700;
+  color: var(--text);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 5px 10px;
+  background: var(--surface);
   outline: none;
-  transition: border-color 0.2s;
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
-.slider-value-input:focus { border-color: #2563eb; }
-.unit { font-size: 0.9rem; color: #6e6e73; font-weight: 500; min-width: 24px; }
+.slider-value-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+.unit { font-size: 0.85rem; color: var(--text-2); font-weight: 500; min-width: 28px; }
+
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 8px;
-  border-radius: 4px;
-  background: #e5e7eb;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
   outline: none;
 }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 24px; height: 24px;
+  width: 22px; height: 22px;
   border-radius: 50%;
-  background: #2563eb;
+  background: var(--surface);
+  border: 2.5px solid var(--primary);
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(37,99,235,0.3);
+  box-shadow: 0 2px 6px rgba(5,150,105,0.28);
+  transition: transform 0.1s;
 }
+input[type="range"]::-webkit-slider-thumb:active { transform: scale(1.12); }
 input[type="range"]::-moz-range-thumb {
-  width: 24px; height: 24px;
+  width: 22px; height: 22px;
   border-radius: 50%;
-  background: #2563eb;
+  background: var(--surface);
+  border: 2.5px solid var(--primary);
   cursor: pointer;
-  border: none;
 }
 
 .tab-toggle {
   display: flex;
-  background: #e5e7eb;
-  border-radius: 12px;
+  background: var(--surface-3);
+  border-radius: var(--radius-md);
   padding: 4px;
   margin-bottom: 24px;
 }
 .tab-btn {
   flex: 1;
-  padding: 12px 16px;
+  padding: 12px 14px;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   background: transparent;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.25s;
-  color: #6e6e73;
+  color: var(--text-2);
+  transition: all 0.2s;
+  font-family: inherit;
 }
 .tab-btn.active {
-  background: #fff;
-  color: #2563eb;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
 }
 
 .target-input-section {
   display: none;
-  margin-bottom: 20px;
-  padding: 16px 20px;
-  background: #eff6ff;
-  border-radius: 12px;
-  border: 1.5px solid #bfdbfe;
+  margin-bottom: 22px;
+  padding: 18px 20px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
 }
 .target-input-section.visible { display: block; }
 
+.hero-result {
+  position: relative;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0f3b2e 100%);
+  color: #f8fafc;
+  border-radius: var(--radius-lg);
+  padding: 30px 28px;
+  margin-bottom: 22px;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+.hero-result::before {
+  content: '';
+  position: absolute;
+  top: -60%;
+  right: -25%;
+  width: 75%;
+  height: 220%;
+  background: radial-gradient(ellipse, rgba(16,185,129,0.22) 0%, transparent 60%);
+  pointer-events: none;
+}
+.hero-label {
+  position: relative;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #94a3b8;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.hero-value {
+  position: relative;
+  font-size: 2.85rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.05;
+  margin-bottom: 6px;
+}
+.hero-value .unit-lg {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  margin-left: 4px;
+}
+.hero-sub {
+  position: relative;
+  font-size: 0.82rem;
+  color: #94a3b8;
+}
+.hero-verdict {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 18px;
+  padding: 8px 15px;
+  border-radius: 100px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+.hero-verdict.ok { background: rgba(16,185,129,0.2); color: #6ee7b7; }
+.hero-verdict.ng { background: rgba(239,68,68,0.22); color: #fca5a5; }
+.hero-verdict .dot {
+  display: inline-block;
+  width: 6px; height: 6px; border-radius: 50%;
+}
+.hero-verdict.ok .dot { background: #34d399; box-shadow: 0 0 8px #34d399; }
+.hero-verdict.ng .dot { background: #f87171; box-shadow: 0 0 8px #f87171; }
+
 .metrics {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 14px;
-  margin-bottom: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 26px;
 }
 .metric-card {
-  background: #f9fafb;
-  border-radius: 12px;
-  padding: 18px;
-  text-align: center;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
 }
-.metric-card .label { font-size: 0.82rem; color: #6e6e73; margin-bottom: 6px; }
-.metric-card .value { font-size: 1.35rem; font-weight: 700; color: #1d1d1f; }
-.metric-card .sub { font-size: 0.78rem; color: #6e6e73; margin-top: 2px; }
-.metric-card.success { background: #ecfdf5; border: 1.5px solid #a7f3d0; }
-.metric-card.success .value { color: #10b981; }
-.metric-card.danger { background: #fef2f2; border: 1.5px solid #fecaca; }
-.metric-card.danger .value { color: #ef4444; }
+.metric-card .label {
+  font-size: 0.72rem;
+  color: var(--text-2);
+  margin-bottom: 6px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.metric-card .value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.metric-card .value .unit-sm {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-2);
+  margin-left: 2px;
+}
+.metric-card.accent { background: var(--primary-soft); border-color: #a7f3d0; }
+.metric-card.accent .value { color: var(--primary-strong); }
+.metric-card.warn { background: var(--warn-soft); border-color: #fde68a; }
+.metric-card.warn .value { color: var(--warn); }
 
-.chart-wrapper {
-  position: relative;
-  width: 100%;
-  margin-bottom: 24px;
-}
-canvas#chart {
-  width: 100%;
-  height: 420px;
-  display: block;
-}
+.chart-wrapper { position: relative; width: 100%; margin-bottom: 22px; }
+canvas#chart { width: 100%; height: 380px; display: block; }
 .chart-tooltip {
   position: absolute;
-  background: rgba(0,0,0,0.82);
+  background: rgba(15,23,42,0.94);
   color: #fff;
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 0.82rem;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 0.78rem;
   pointer-events: none;
   white-space: nowrap;
   display: none;
   z-index: 10;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  font-variant-numeric: tabular-nums;
 }
 .chart-legend {
   display: flex;
   justify-content: center;
-  gap: 20px;
+  gap: 18px;
   flex-wrap: wrap;
-  margin-bottom: 16px;
-  font-size: 0.85rem;
-  color: #6e6e73;
+  margin-bottom: 14px;
+  font-size: 0.8rem;
+  color: var(--text-2);
 }
 .chart-legend span { display: flex; align-items: center; gap: 6px; }
-.legend-line {
-  display: inline-block;
-  width: 24px;
-  height: 3px;
-  border-radius: 2px;
-}
-.legend-dash {
-  display: inline-block;
-  width: 24px;
-  height: 0;
-  border-top: 2.5px dashed;
-}
+.legend-line { display: inline-block; width: 22px; height: 3px; border-radius: 2px; }
+.legend-dash { display: inline-block; width: 22px; height: 0; border-top: 2.5px dashed; }
 
-.data-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.88rem;
+  font-variant-numeric: tabular-nums;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
 .data-table th {
-  background: #f3f4f6;
-  padding: 10px 14px;
+  background: var(--surface-2);
+  padding: 11px 14px;
   text-align: left;
-  font-weight: 600;
-  border-bottom: 2px solid #e5e7eb;
+  font-weight: 700;
+  color: var(--text-2);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--border);
 }
 .data-table td {
-  padding: 10px 14px;
-  border-bottom: 1px solid #f0f0f2;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
 }
+.data-table tr:last-child td { border-bottom: none; }
 .data-table tr.green td { background: #f0fdf4; }
-.data-table tr.red td { background: #fef2f2; color: #ef4444; }
+.data-table tr.red td { background: #fef2f2; color: var(--danger); }
+.data-table tr.retire td { background: var(--blue-soft); font-weight: 600; }
 
 .advanced-toggle {
   display: flex;
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: #6e6e73;
-  margin-bottom: 16px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   user-select: none;
 }
-.advanced-toggle .arrow {
-  transition: transform 0.25s;
-  font-size: 0.8rem;
-}
+.advanced-toggle .arrow { transition: transform 0.2s; font-size: 0.7rem; }
 .advanced-toggle .arrow.open { transform: rotate(90deg); }
-.advanced-content { display: none; }
+.advanced-content { display: none; margin-top: 24px; }
 .advanced-content.open { display: block; }
+
+.checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-top: 6px;
+  cursor: pointer;
+}
+.checkbox-row input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+  flex-shrink: 0;
+  margin-top: 2px;
+  cursor: pointer;
+}
+.cb-text .cb-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  display: block;
+}
+.cb-text .cb-desc {
+  font-size: 0.76rem;
+  color: var(--text-2);
+  margin-top: 3px;
+  line-height: 1.55;
+}
+
+.advanced-note {
+  font-size: 0.76rem;
+  color: var(--text-3);
+  margin-top: 14px;
+  line-height: 1.6;
+}
 
 .note {
   text-align: center;
-  color: #9ca3af;
-  font-size: 0.82rem;
-  margin-top: 30px;
-  line-height: 1.7;
+  color: var(--text-3);
+  font-size: 0.78rem;
+  margin-top: 34px;
+  line-height: 1.75;
+  padding: 0 20px;
 }
 
-@media (max-width: 600px) {
-  header h1 { font-size: 1.5rem; }
-  .card { padding: 20px; }
+@media (max-width: 640px) {
+  header { padding: 40px 16px 28px; }
+  header h1 { font-size: 1.7rem; }
+  .container { padding: 0 14px; }
+  .card { padding: 22px 20px; border-radius: 22px; }
   .metrics { grid-template-columns: 1fr 1fr; }
   canvas#chart { height: 300px; }
-  .slider-value-input { width: 80px; font-size: 0.9rem; }
-  .tab-btn { font-size: 0.85rem; padding: 10px 8px; }
+  .slider-value-input { width: 84px; font-size: 0.95rem; }
+  .tab-btn { font-size: 0.82rem; padding: 10px 6px; }
+  .hero-result { padding: 24px 20px; }
+  .hero-value { font-size: 2.2rem; }
+  .data-table { font-size: 0.82rem; }
+  .data-table th, .data-table td { padding: 9px 10px; }
 }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>老後資金シミュレーター</h1>
-  <p>今の資産と積立で、リタイア後の生活は大丈夫？</p>
+  <span class="badge">Retirement &amp; FIRE</span>
+  <h1>リタイアシミュレーター</h1>
+  <p>今の資産と積立で、老後の生活は大丈夫？</p>
 </header>
 
 <div class="container">
 
-  <!-- あなたの情報 -->
   <div class="card">
     <h2>あなたの情報</h2>
     <div class="slider-group">
@@ -274,7 +477,6 @@ canvas#chart {
     </div>
   </div>
 
-  <!-- 今の資産 -->
   <div class="card">
     <h2>今の資産</h2>
     <div class="slider-group">
@@ -293,7 +495,6 @@ canvas#chart {
     </div>
   </div>
 
-  <!-- 毎月のお金 -->
   <div class="card">
     <h2>毎月のお金</h2>
     <div class="slider-group">
@@ -312,23 +513,21 @@ canvas#chart {
     </div>
   </div>
 
-  <!-- 運用 -->
   <div class="card">
     <h2>運用</h2>
     <div class="slider-group">
       <div class="slider-label">
-        <span>想定利回り（年）</span>
+        <span>想定利回り（年・税引後）</span>
         <div class="label-right"><input type="number" class="slider-value-input" id="returnRate_val" value="5" min="1" max="12" step="0.5"><span class="unit">%</span></div>
       </div>
       <input type="range" id="returnRate" min="1" max="12" value="5" step="0.5">
     </div>
   </div>
 
-  <!-- 詳細設定 -->
   <div class="card">
     <div class="advanced-toggle" onclick="toggleAdvanced()">
       <span class="arrow" id="advArrow">&#9654;</span>
-      <span>詳細設定（一般的な数値を設定済み）</span>
+      <span>詳細設定</span>
     </div>
     <div class="advanced-content" id="advContent">
       <div class="slider-group">
@@ -359,11 +558,17 @@ canvas#chart {
         </div>
         <input type="range" id="lifeExpect" min="80" max="105" value="95" step="1">
       </div>
-      <p style="font-size:0.82rem;color:#9ca3af;margin-top:14px;">※ 医療費・介護費等は生活費に含まれる想定です</p>
+      <label class="checkbox-row">
+        <input type="checkbox" id="pensionInflationAdjust" checked>
+        <div class="cb-text">
+          <span class="cb-label">年金をインフレ調整する</span>
+          <span class="cb-desc">ONのとき年金も物価と同じペースで増えると仮定（マクロ経済スライド無視の実質固定）。OFFにすると名目固定で実質目減り、より保守的。</span>
+        </div>
+      </label>
+      <p class="advanced-note">※ 医療費・介護費等は生活費に含まれる想定。現金（生活防衛資金）は運用せず、チャートの参照ラインとしてのみ表示。</p>
     </div>
   </div>
 
-  <!-- 結果 -->
   <div class="card" id="resultsCard">
     <div class="tab-toggle">
       <button class="tab-btn active" id="tab1btn" onclick="setTab(1)">今の積立で大丈夫？</button>
@@ -379,6 +584,8 @@ canvas#chart {
         <input type="range" id="targetAsset" min="1000" max="30000" value="6000" step="100">
       </div>
     </div>
+
+    <div class="hero-result" id="heroResult"></div>
 
     <div class="metrics" id="metricsArea"></div>
 
@@ -396,7 +603,8 @@ canvas#chart {
   </div>
 
   <p class="note">
-    ※ シミュレーション結果は概算です。4%ルールは過去の実績に基づく目安であり、将来のリターンを保証するものではありません。
+    シミュレーション結果は概算。4%ルールは過去の米国株式実績に基づく経験則で、将来のリターンを保証しない。<br>
+    月次複利・税引後リターン想定。年金は詳細設定でインフレ調整の有無を切替可能。
   </p>
 </div>
 
@@ -407,24 +615,23 @@ canvas#chart {
   let activeTab = 1;
   let animFrame = null;
 
-  // Bind sliders and number inputs
   const fields = [
     'currentAge','retireAge','investAssets','cashReserve',
     'monthlyContrib','monthlyExpense','returnRate',
     'inflation','pension','pensionAge','lifeExpect','targetAsset'
   ];
-
-  const STORAGE_KEY = 'retirement-sim-values';
+  const STORAGE_KEY = 'retirement-sim-values-v2';
 
   function saveAll() {
     const obj = {};
     fields.forEach(id => { obj[id] = getVal(id); });
+    obj.pensionInflationAdjust = document.getElementById('pensionInflationAdjust').checked;
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(obj)); } catch(e) {}
   }
 
   function loadAll() {
     try {
-      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || localStorage.getItem('retirement-sim-values'));
       if (!saved) return;
       fields.forEach(id => {
         if (saved[id] == null) return;
@@ -435,6 +642,9 @@ canvas#chart {
         slider.value = v;
         input.value = v;
       });
+      if (typeof saved.pensionInflationAdjust === 'boolean') {
+        document.getElementById('pensionInflationAdjust').checked = saved.pensionInflationAdjust;
+      }
     } catch(e) {}
   }
 
@@ -469,6 +679,11 @@ canvas#chart {
     });
   });
 
+  document.getElementById('pensionInflationAdjust').addEventListener('change', () => {
+    saveAll();
+    scheduleUpdate();
+  });
+
   function getVal(id) { return parseFloat(document.getElementById(id).value) || 0; }
 
   window.toggleAdvanced = function() {
@@ -496,26 +711,45 @@ canvas#chart {
     return rounded.toLocaleString('ja-JP');
   }
 
-  // Year-by-year simulation
-  function simulate(initialAssets, monthlyContrib, returnRate, monthlyExpense, inflation, pensionMonthly, pensionAge, currentAge, retireAge, lifeExpect) {
-    const data = [];
+  // Monthly-compound simulation.
+  // Returns one data point per year (at the start of each age).
+  function simulate(opts) {
+    const {
+      initialAssets, monthlyContrib, annualReturn,
+      monthlyExpense, annualInflation,
+      pensionMonthly, pensionAge, pensionInflationAdjust,
+      currentAge, retireAge, lifeExpect
+    } = opts;
+
+    const mr = Math.pow(1 + annualReturn, 1/12) - 1;
+    const mi = Math.pow(1 + annualInflation, 1/12) - 1;
+
     let assets = initialAssets;
-    const pensionAnnual = pensionMonthly * 12;
+    const data = [{ age: currentAge, assets }];
 
-    for (let age = currentAge; age <= lifeExpect; age++) {
-      data.push({ age, assets: Math.round(assets * 10) / 10 });
+    const totalMonths = (lifeExpect - currentAge) * 12;
+    for (let m = 1; m <= totalMonths; m++) {
+      // Age at the start of this month
+      const ageStart = currentAge + (m - 1) / 12;
+      const inflFactor = Math.pow(1 + mi, m - 1);
 
-      if (age < retireAge) {
-        // Working: grow then add contributions
-        assets *= (1 + returnRate);
-        assets += monthlyContrib * 12;
+      if (ageStart < retireAge) {
+        // Accumulation: grow one month, then contribute end-of-month
+        assets *= (1 + mr);
+        assets += monthlyContrib;
       } else {
-        // Retired: withdraw living expenses (inflated) minus pension, then grow remainder
-        const inflatedAnnualExp = monthlyExpense * 12 * Math.pow(1 + inflation, age - currentAge);
-        const penInc = (age >= pensionAge) ? pensionAnnual : 0;
-        const needed = Math.max(0, inflatedAnnualExp - penInc);
-        assets -= needed;
-        assets *= (1 + returnRate);
+        // Decumulation: withdraw start-of-month, grow remainder
+        const expenseNow = monthlyExpense * inflFactor;
+        const pensionNow = (Math.floor(ageStart) >= pensionAge)
+          ? (pensionInflationAdjust ? pensionMonthly * inflFactor : pensionMonthly)
+          : 0;
+        const withdraw = Math.max(0, expenseNow - pensionNow);
+        assets -= withdraw;
+        assets *= (1 + mr);
+      }
+
+      if (m % 12 === 0) {
+        data.push({ age: currentAge + m / 12, assets });
       }
     }
     return data;
@@ -528,102 +762,157 @@ canvas#chart {
     const cashReserve = getVal('cashReserve');
     const monthlyContrib = getVal('monthlyContrib');
     const monthlyExpense = getVal('monthlyExpense');
-    const returnRate = getVal('returnRate') / 100;
-    const inflation = getVal('inflation') / 100;
+    const annualReturn = getVal('returnRate') / 100;
+    const annualInflation = getVal('inflation') / 100;
     const pensionMonthly = getVal('pension');
     const pensionAge = Math.round(getVal('pensionAge'));
     const lifeExpect = Math.round(getVal('lifeExpect'));
     const targetAsset = getVal('targetAsset');
+    const pensionInflationAdjust = document.getElementById('pensionInflationAdjust').checked;
 
-    // FIRE line calculation
     const yearsToRetire = retireAge - currentAge;
-    const inflatedAnnualAtRetire = monthlyExpense * 12 * Math.pow(1 + inflation, yearsToRetire);
-    const pensionAnnual = pensionMonthly * 12;
-    // For FIRE line, consider pension only if pension starts at or before retirement
-    const pensionAtRetire = (retireAge >= pensionAge) ? pensionAnnual : 0;
-    const netNeedAtRetire = Math.max(0, inflatedAnnualAtRetire - pensionAtRetire);
+    const mr = Math.pow(1 + annualReturn, 1/12) - 1;
+    const mi = Math.pow(1 + annualInflation, 1/12) - 1;
+
+    // FIRE line at retirement (nominal, inflated)
+    const monthsToRetire = yearsToRetire * 12;
+    const inflFactorAtRetire = Math.pow(1 + mi, monthsToRetire);
+    const annualExpenseAtRetire = monthlyExpense * 12 * inflFactorAtRetire;
+    const pensionAnnualAtRetire = (retireAge >= pensionAge)
+      ? (pensionInflationAdjust ? pensionMonthly * 12 * inflFactorAtRetire : pensionMonthly * 12)
+      : 0;
+    const netNeedAtRetire = Math.max(0, annualExpenseAtRetire - pensionAnnualAtRetire);
     const fireLine = netNeedAtRetire / 0.04;
 
     // Main simulation
-    const mainData = simulate(investAssets0, monthlyContrib, returnRate, monthlyExpense, inflation, pensionMonthly, pensionAge, currentAge, retireAge, lifeExpect);
+    const simOpts = {
+      initialAssets: investAssets0,
+      monthlyContrib, annualReturn,
+      monthlyExpense, annualInflation,
+      pensionMonthly, pensionAge, pensionInflationAdjust,
+      currentAge, retireAge, lifeExpect
+    };
+    const mainData = simulate(simOpts);
 
-    // Reverse calculation (Tab 2)
+    // Reverse calculation (Tab 2) — monthly FV-of-annuity
     let requiredMonthly = 0;
     let reverseData = null;
     if (activeTab === 2) {
-      const mr = returnRate / 12;
-      const months = yearsToRetire * 12;
+      const months = monthsToRetire;
       if (months <= 0) {
         requiredMonthly = 0;
-      } else if (mr === 0) {
-        requiredMonthly = Math.max(0, (targetAsset - investAssets0) / months);
       } else {
         const fvCurrent = investAssets0 * Math.pow(1 + mr, months);
-        const pmt = (targetAsset - fvCurrent) * mr / (Math.pow(1 + mr, months) - 1);
-        requiredMonthly = Math.max(0, pmt);
+        const diff = targetAsset - fvCurrent;
+        if (diff <= 0) {
+          requiredMonthly = 0;
+        } else if (mr === 0) {
+          requiredMonthly = diff / months;
+        } else {
+          requiredMonthly = diff * mr / (Math.pow(1 + mr, months) - 1);
+        }
       }
-      reverseData = simulate(investAssets0, requiredMonthly, returnRate, monthlyExpense, inflation, pensionMonthly, pensionAge, currentAge, retireAge, lifeExpect);
+      reverseData = simulate({ ...simOpts, monthlyContrib: requiredMonthly });
     }
 
-    // Retirement assets from main sim
     const retireEntry = mainData.find(d => d.age === retireAge);
     const retireAssets = retireEntry ? retireEntry.assets : 0;
     const withdrawal4pct = retireAssets * 0.04;
-    // FIRE判定: 想定寿命まで資産が0を下回らないか
-    const depleteAge = mainData.find(d => d.age > retireAge && d.assets < 0);
-    const canFire = !depleteAge;
+    const depleteEntry = mainData.find(d => d.age > retireAge && d.assets < 0);
+    const canFire = !depleteEntry;
 
-    renderMetrics(retireAssets, withdrawal4pct, inflatedAnnualAtRetire, canFire, fireLine, requiredMonthly, targetAsset, depleteAge);
+    renderHero({
+      retireAssets, withdrawal4pct, inflatedExp: annualExpenseAtRetire,
+      canFire, fireLine, depleteEntry, lifeExpect, retireAge, currentAge,
+      reqMonthly: requiredMonthly, target: targetAsset, monthlyContrib
+    });
+    renderMetrics({
+      retireAssets, withdrawal4pct, inflatedExp: annualExpenseAtRetire,
+      canFire, fireLine, depleteEntry,
+      reqMonthly: requiredMonthly, target: targetAsset,
+      monthlyContrib
+    });
     renderLegend(reverseData !== null);
     renderChart(mainData, reverseData, currentAge, retireAge, lifeExpect, cashReserve, fireLine);
     renderTable(mainData, currentAge, retireAge, lifeExpect, fireLine);
   }
 
-  function renderMetrics(retireAssets, withdrawal, inflatedExp, canFire, fireLine, reqMonthly, target, depleteAge) {
-    const area = document.getElementById('metricsArea');
+  function renderHero(ctx) {
+    const el = document.getElementById('heroResult');
     let html = '';
-
     if (activeTab === 1) {
-      const shortfall = Math.round(fireLine - retireAssets);
-      html += metricCard('リタイア時の運用資産', fmt(retireAssets) + '万円');
-      html += metricCard('年間取り崩し額(4%)', fmt(Math.round(withdrawal)) + '万円/年');
-      html += metricCard('年間生活費(リタイア時)', fmt(Math.round(inflatedExp)) + '万円/年');
-      if (canFire) {
-        html += '<div class="metric-card success"><div class="label">判定</div><div class="value">' + Math.round(getVal('lifeExpect')) + '歳まで安心!</div></div>';
+      const yearsToRetire = ctx.retireAge - ctx.currentAge;
+      html += '<div class="hero-label">リタイア時の運用資産（' + ctx.retireAge + '歳時点・あと' + yearsToRetire + '年）</div>';
+      html += '<div class="hero-value">' + fmt(ctx.retireAssets) + '<span class="unit-lg">万円</span></div>';
+      html += '<div class="hero-sub">FIRE達成ライン ' + fmt(ctx.fireLine) + '万円 ／ 年間取り崩し(4%) ' + fmt(ctx.withdrawal4pct) + '万円</div>';
+      if (ctx.canFire) {
+        html += '<div class="hero-verdict ok"><span class="dot"></span>' + ctx.lifeExpect + '歳まで資金が持つ</div>';
       } else {
-        html += '<div class="metric-card danger"><div class="label">判定</div><div class="value">' + depleteAge.age + '歳で資金枯渇</div></div>';
+        html += '<div class="hero-verdict ng"><span class="dot"></span>' + ctx.depleteEntry.age + '歳で資金枯渇</div>';
       }
     } else {
-      const rev4pct = target * 0.04;
-      const covers = rev4pct >= inflatedExp;
-      html += metricCard('目標資産額', fmt(target) + '万円');
-      html += metricCard('必要な毎月積立額', (Math.round(reqMonthly * 10) / 10).toLocaleString('ja-JP') + '万円');
-      html += metricCard('達成時の取り崩し(4%)', fmt(Math.round(rev4pct)) + '万円/年');
+      const rev4pct = ctx.target * 0.04;
+      const covers = rev4pct >= ctx.inflatedExp;
+      html += '<div class="hero-label">目標到達に必要な毎月積立額</div>';
+      html += '<div class="hero-value">' + (Math.round(ctx.reqMonthly * 10) / 10).toLocaleString('ja-JP') + '<span class="unit-lg">万円/月</span></div>';
+      html += '<div class="hero-sub">目標 ' + fmt(ctx.target) + '万円 ／ 現在の積立 ' + (Math.round(ctx.monthlyContrib * 10) / 10).toLocaleString('ja-JP') + '万円/月</div>';
       if (covers) {
-        html += '<div class="metric-card success"><div class="label">判定</div><div class="value">生活費をカバー可能</div></div>';
+        html += '<div class="hero-verdict ok"><span class="dot"></span>達成時に生活費をカバー可能</div>';
       } else {
-        html += '<div class="metric-card danger"><div class="label">判定</div><div class="value">生活費に対して不足</div></div>';
+        html += '<div class="hero-verdict ng"><span class="dot"></span>生活費に対して不足</div>';
+      }
+    }
+    el.innerHTML = html;
+  }
+
+  function renderMetrics(ctx) {
+    const area = document.getElementById('metricsArea');
+    let html = '';
+    if (activeTab === 1) {
+      html += metricCard('年間生活費', fmt(ctx.inflatedExp) + '<span class="unit-sm">万円/年</span>', 'リタイア時点・インフレ調整後');
+      html += metricCard('年間取り崩し', fmt(ctx.withdrawal4pct) + '<span class="unit-sm">万円/年</span>', '4%ルール');
+      const overshort = ctx.retireAssets - ctx.fireLine;
+      if (overshort >= 0) {
+        html += metricCardClass('余裕資金', '+' + fmt(overshort) + '<span class="unit-sm">万円</span>', 'FIREラインに対して', 'accent');
+      } else {
+        html += metricCardClass('不足資金', fmt(overshort) + '<span class="unit-sm">万円</span>', 'FIREラインに対して', 'warn');
+      }
+    } else {
+      const rev4pct = ctx.target * 0.04;
+      const diff = ctx.reqMonthly - ctx.monthlyContrib;
+      html += metricCard('目標資産', fmt(ctx.target) + '<span class="unit-sm">万円</span>', '');
+      html += metricCard('達成時の取り崩し', fmt(rev4pct) + '<span class="unit-sm">万円/年</span>', '4%ルール');
+      if (diff > 0.05) {
+        html += metricCardClass('現在の積立との差', '+' + (Math.round(diff * 10) / 10).toLocaleString('ja-JP') + '<span class="unit-sm">万円/月</span>', 'さらに必要', 'warn');
+      } else {
+        html += metricCardClass('現在の積立との差', (Math.round(diff * 10) / 10).toLocaleString('ja-JP') + '<span class="unit-sm">万円/月</span>', '目標到達済み', 'accent');
       }
     }
     area.innerHTML = html;
   }
 
-  function metricCard(label, value) {
-    return '<div class="metric-card"><div class="label">' + label + '</div><div class="value">' + value + '</div></div>';
+  function metricCard(label, value, sub) {
+    return '<div class="metric-card"><div class="label">' + label + '</div><div class="value">' + value + '</div>' +
+      (sub ? '<div class="label" style="margin-top:4px;text-transform:none;letter-spacing:0;font-weight:500">' + sub + '</div>' : '') +
+      '</div>';
+  }
+  function metricCardClass(label, value, sub, cls) {
+    return '<div class="metric-card ' + cls + '"><div class="label">' + label + '</div><div class="value">' + value + '</div>' +
+      (sub ? '<div class="label" style="margin-top:4px;text-transform:none;letter-spacing:0;font-weight:500">' + sub + '</div>' : '') +
+      '</div>';
   }
 
   function renderLegend(hasReverse) {
     const el = document.getElementById('chartLegend');
-    let html = '<span><span class="legend-line" style="background:#2563eb"></span>運用資産</span>';
-    html += '<span><span class="legend-dash" style="border-color:#fb923c"></span>生活防衛資金</span>';
+    let html = '<span><span class="legend-line" style="background:#2563eb"></span>運用資産の推移</span>';
     html += '<span><span class="legend-dash" style="border-color:#f59e0b"></span>FIRE達成ライン</span>';
+    html += '<span><span class="legend-dash" style="border-color:#fb923c"></span>生活防衛資金</span>';
     if (hasReverse) {
       html += '<span><span class="legend-dash" style="border-color:#10b981"></span>必要積立での推移</span>';
     }
     el.innerHTML = html;
   }
 
-  // Chart rendering
   function renderChart(data, reverseData, currentAge, retireAge, lifeExpect, cashReserve, fireLine) {
     const canvas = document.getElementById('chart');
     const dpr = window.devicePixelRatio || 1;
@@ -638,7 +927,6 @@ canvas#chart {
     const gW = W - pad.left - pad.right;
     const gH = H - pad.top - pad.bottom;
 
-    // Compute range
     const allValues = data.map(d => d.assets);
     if (reverseData) reverseData.forEach(d => allValues.push(d.assets));
     allValues.push(cashReserve, fireLine, 0);
@@ -652,8 +940,8 @@ canvas#chart {
 
     ctx.clearRect(0, 0, W, H);
 
-    // Y grid lines
-    ctx.strokeStyle = '#e5e7eb';
+    // Y grid
+    ctx.strokeStyle = '#e2e8f0';
     ctx.lineWidth = 0.5;
     const yTicks = niceSteps(minY, maxY, 6);
     ctx.font = '11px -apple-system, sans-serif';
@@ -661,24 +949,23 @@ canvas#chart {
     yTicks.forEach(v => {
       const y = yScale(v);
       ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
-      ctx.fillStyle = '#9ca3af';
+      ctx.fillStyle = '#94a3b8';
       ctx.fillText(fmt(v) + '万', pad.left - 8, y + 4);
     });
 
-    // X grid lines every 5 years
+    // X grid every 5 years
     ctx.textAlign = 'center';
     for (let age = Math.ceil(currentAge / 5) * 5; age <= lifeExpect; age += 5) {
       const x = xScale(age);
-      ctx.strokeStyle = '#e5e7eb';
+      ctx.strokeStyle = '#e2e8f0';
       ctx.lineWidth = 0.5;
       ctx.beginPath(); ctx.moveTo(x, pad.top); ctx.lineTo(x, pad.top + gH); ctx.stroke();
-      ctx.fillStyle = '#9ca3af';
+      ctx.fillStyle = '#94a3b8';
       ctx.fillText(age + '歳', x, pad.top + gH + 22);
     }
 
-    // Zero line if needed
     if (minY < 0) {
-      ctx.strokeStyle = '#d1d5db';
+      ctx.strokeStyle = '#cbd5e1';
       ctx.lineWidth = 1;
       const zy = yScale(0);
       ctx.beginPath(); ctx.moveTo(pad.left, zy); ctx.lineTo(W - pad.right, zy); ctx.stroke();
@@ -700,7 +987,7 @@ canvas#chart {
     }
     ctx.restore();
 
-    // Cash reserve line
+    // Cash reserve
     ctx.save();
     ctx.setLineDash([4, 4]);
     ctx.strokeStyle = '#fb923c';
@@ -714,28 +1001,29 @@ canvas#chart {
     ctx.fillText('生活防衛資金 ' + fmt(cashReserve) + '万', W - pad.right - 6, cashY - 6);
     ctx.restore();
 
-    // Retirement vertical line
+    // Retirement vertical
     ctx.save();
     ctx.setLineDash([7, 5]);
-    ctx.strokeStyle = '#6b7280';
+    ctx.strokeStyle = '#64748b';
     ctx.lineWidth = 1.5;
     const retX = xScale(retireAge);
     ctx.beginPath(); ctx.moveTo(retX, pad.top); ctx.lineTo(retX, pad.top + gH); ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle = '#6b7280';
+    ctx.fillStyle = '#64748b';
     ctx.font = 'bold 11px -apple-system, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('リタイア', retX, pad.top - 10);
     ctx.restore();
 
-    // Reverse data line (Tab 2)
     if (reverseData) {
       drawLine(ctx, reverseData, xScale, yScale, '#10b981', 2.5, [7, 4]);
     }
 
-    // Fill under main line
+    // Fill under main
     ctx.save();
-    ctx.globalAlpha = 0.06;
+    const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + gH);
+    grad.addColorStop(0, 'rgba(37,99,235,0.18)');
+    grad.addColorStop(1, 'rgba(37,99,235,0.01)');
     ctx.beginPath();
     data.forEach((d, i) => {
       const x = xScale(d.age), y = yScale(d.assets);
@@ -744,24 +1032,21 @@ canvas#chart {
     ctx.lineTo(xScale(data[data.length - 1].age), yScale(0));
     ctx.lineTo(xScale(data[0].age), yScale(0));
     ctx.closePath();
-    ctx.fillStyle = '#2563eb';
+    ctx.fillStyle = grad;
     ctx.fill();
     ctx.restore();
 
-    // Main line
     drawLine(ctx, data, xScale, yScale, '#2563eb', 2.5, []);
 
-    // Dot and label at retirement
     const retEntry = data.find(d => d.age === retireAge);
     if (retEntry) {
       drawDot(ctx, xScale(retireAge), yScale(retEntry.assets), '#2563eb');
-      ctx.fillStyle = '#1d1d1f';
+      ctx.fillStyle = '#0f172a';
       ctx.font = 'bold 11px -apple-system, sans-serif';
       ctx.textAlign = 'left';
       ctx.fillText(fmt(retEntry.assets) + '万', xScale(retireAge) + 10, yScale(retEntry.assets) - 10);
     }
 
-    // Mark FIRE crossing
     for (let i = 1; i < data.length; i++) {
       if (data[i - 1].assets < fireLine && data[i].assets >= fireLine) {
         drawDot(ctx, xScale(data[i].age), yScale(data[i].assets), '#f59e0b');
@@ -773,7 +1058,6 @@ canvas#chart {
       }
     }
 
-    // Hover tooltip
     canvas.onmousemove = function(e) {
       const tooltip = document.getElementById('tooltip');
       const bRect = canvas.getBoundingClientRect();
@@ -783,10 +1067,10 @@ canvas#chart {
       const dp = data.find(d => d.age === age);
       if (dp && mx >= pad.left && mx <= W - pad.right) {
         let ttX = xScale(age) + 14;
-        if (ttX + 140 > W) ttX = xScale(age) - 150;
+        if (ttX + 160 > W) ttX = xScale(age) - 170;
         tooltip.style.display = 'block';
         tooltip.style.left = ttX + 'px';
-        tooltip.style.top = (yScale(dp.assets) - 32) + 'px';
+        tooltip.style.top = (yScale(dp.assets) - 34) + 'px';
         let text = dp.age + '歳: ' + fmt(dp.assets) + '万円';
         if (reverseData) {
           const rdp = reverseData.find(d => d.age === age);
@@ -801,7 +1085,6 @@ canvas#chart {
       document.getElementById('tooltip').style.display = 'none';
     };
 
-    // Touch support
     canvas.ontouchmove = function(e) {
       e.preventDefault();
       const touch = e.touches[0];
@@ -814,7 +1097,7 @@ canvas#chart {
       if (dp && mx >= pad.left && mx <= W - pad.right) {
         tooltip.style.display = 'block';
         tooltip.style.left = (xScale(age) + 14) + 'px';
-        tooltip.style.top = (yScale(dp.assets) - 32) + 'px';
+        tooltip.style.top = (yScale(dp.assets) - 34) + 'px';
         tooltip.textContent = dp.age + '歳: ' + fmt(dp.assets) + '万円';
       } else {
         tooltip.style.display = 'none';
@@ -871,32 +1154,27 @@ canvas#chart {
   function renderTable(data, currentAge, retireAge, lifeExpect, fireLine) {
     const tbody = document.getElementById('tableBody');
     const showAges = new Set();
-
-    // Every 5 years
-    for (let a = Math.ceil((currentAge + 1) / 5) * 5; a <= lifeExpect; a += 5) {
-      showAges.add(a);
-    }
+    for (let a = Math.ceil((currentAge + 1) / 5) * 5; a <= lifeExpect; a += 5) showAges.add(a);
     showAges.add(retireAge);
-    // Always show last age
     showAges.add(lifeExpect);
 
     const sorted = Array.from(showAges).sort((a, b) => a - b);
     let html = '';
-
     sorted.forEach(age => {
       const dp = data.find(d => d.age === age);
       if (!dp) return;
-      const cls = dp.assets >= fireLine ? 'green' : dp.assets < 0 ? 'red' : '';
+      let cls = '';
+      if (dp.assets < 0) cls = 'red';
+      else if (age === retireAge) cls = 'retire';
+      else if (dp.assets >= fireLine) cls = 'green';
       let note = '';
-      if (age === retireAge) note = '← ここからの取り崩し';
+      if (age === retireAge) note = 'リタイア・取り崩し開始';
       if (dp.assets < 0) note = '資産が枯渇';
       html += '<tr class="' + cls + '"><td>' + age + '歳</td><td>' + fmt(dp.assets) + '万円</td><td>' + note + '</td></tr>';
     });
-
     tbody.innerHTML = html;
   }
 
-  // Initial run and resize handler
   window.addEventListener('resize', scheduleUpdate);
   runSimulation();
 
