@@ -14,15 +14,14 @@
 
 ## ファイル
 
-- `retirement-simulator.html` — シミュレータ本体
-- `index.html` — ランディングページ
+- `index.html` — シミュレータ本体（単一HTML）
 
 ## ローカルで動かす
 
 ブラウザで直接開くだけで動作。ビルド不要。
 
 ```
-open retirement-simulator.html
+open index.html
 ```
 
 ## 計算の前提
