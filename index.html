@@ -8,6 +8,15 @@
 <link rel="icon" type="image/svg+xml" href="icon.svg">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>リタイアシミュレーター</title>
+<script>
+// テーマ初期化 (FOIT 防止のため <style> より先に data-theme を確定させる)
+(function() {
+  var pref = localStorage.getItem('retirement-sim-theme') || 'auto';
+  var dark = pref === 'dark' || (pref === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme-pref', pref);
+})();
+</script>
 <style>
 /* Cupertino Design System — retirement-simulator (classic variant / light + dark) */
 :root {
@@ -78,55 +87,53 @@
   --chart-dot-stroke:  #FFFFFF;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #000000;
-    --card: #1C1C1E;
-    --card-2: #2C2C2E;
-    --surface-glass: rgba(28,28,30,0.72);
+:root[data-theme="dark"] {
+  --bg: #000000;
+  --card: #1C1C1E;
+  --card-2: #2C2C2E;
+  --surface-glass: rgba(28,28,30,0.72);
 
-    --text: #F5F5F7;
-    --text-2: #AEAEB2;
-    --text-3: #8E8E93;
-    --muted: #8E8E93;
-    --muted-2: #6E6E73;
+  --text: #F5F5F7;
+  --text-2: #AEAEB2;
+  --text-3: #8E8E93;
+  --muted: #8E8E93;
+  --muted-2: #6E6E73;
 
-    --border: rgba(255,255,255,0.10);
-    --border-strong: rgba(255,255,255,0.20);
-    --border-input: rgba(255,255,255,0.18);
-    --divider: rgba(255,255,255,0.08);
+  --border: rgba(255,255,255,0.10);
+  --border-strong: rgba(255,255,255,0.20);
+  --border-input: rgba(255,255,255,0.18);
+  --divider: rgba(255,255,255,0.08);
 
-    --fill1: rgba(120,120,128,0.18);
-    --fill2: rgba(120,120,128,0.28);
-    --fill3: rgba(120,120,128,0.36);
+  --fill1: rgba(120,120,128,0.18);
+  --fill2: rgba(120,120,128,0.28);
+  --fill3: rgba(120,120,128,0.36);
 
-    --primary: #0A84FF;
-    --primary-bg: rgba(10,132,255,0.14);
-    --primary-fade: rgba(10,132,255,0.32);
+  --primary: #0A84FF;
+  --primary-bg: rgba(10,132,255,0.14);
+  --primary-fade: rgba(10,132,255,0.32);
 
-    --success: #30D158;
-    --success-bg: rgba(48,209,88,0.16);
-    --success-bd: rgba(48,209,88,0.40);
-    --warn: #FF9F0A;
-    --warn-bg: rgba(255,159,10,0.18);
-    --warn-bd: rgba(255,159,10,0.42);
-    --danger: #FF453A;
-    --danger-bg: rgba(255,69,58,0.16);
-    --danger-bd: rgba(255,69,58,0.40);
+  --success: #30D158;
+  --success-bg: rgba(48,209,88,0.16);
+  --success-bd: rgba(48,209,88,0.40);
+  --warn: #FF9F0A;
+  --warn-bg: rgba(255,159,10,0.18);
+  --warn-bd: rgba(255,159,10,0.42);
+  --danger: #FF453A;
+  --danger-bg: rgba(255,69,58,0.16);
+  --danger-bd: rgba(255,69,58,0.40);
 
-    --chart-main:        #0A84FF;
-    --chart-fire:        #FF9F0A;
-    --chart-cash:        #FF8C42;
-    --chart-retire:      #AEAEB2;
-    --chart-reverse:     #30D158;
-    --chart-grid:        rgba(255,255,255,0.10);
-    --chart-zero:        rgba(255,255,255,0.22);
-    --chart-axis:        #8E8E93;
-    --chart-fill-start:  rgba(10,132,255,0.24);
-    --chart-fill-end:    rgba(10,132,255,0.02);
-    --chart-label:       #F5F5F7;
-    --chart-dot-stroke:  #1C1C1E;
-  }
+  --chart-main:        #0A84FF;
+  --chart-fire:        #FF9F0A;
+  --chart-cash:        #FF8C42;
+  --chart-retire:      #AEAEB2;
+  --chart-reverse:     #30D158;
+  --chart-grid:        rgba(255,255,255,0.10);
+  --chart-zero:        rgba(255,255,255,0.22);
+  --chart-axis:        #8E8E93;
+  --chart-fill-start:  rgba(10,132,255,0.24);
+  --chart-fill-end:    rgba(10,132,255,0.02);
+  --chart-label:       #F5F5F7;
+  --chart-dot-stroke:  #1C1C1E;
 }
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -518,6 +525,34 @@ canvas#chart { width: 100%; height: 380px; display: block; }
   padding: 0 20px;
 }
 
+/* Theme toggle (floating top-right) */
+.theme-toggle {
+  position: fixed;
+  top: max(14px, env(safe-area-inset-top));
+  right: 14px;
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px; height: 38px;
+  padding: 0;
+  background: var(--surface-glass);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-pill);
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: var(--shadow-xs);
+  backdrop-filter: saturate(180%) blur(16px);
+  -webkit-backdrop-filter: saturate(180%) blur(16px);
+  transition: background var(--motion-quick), border-color var(--motion-quick), transform var(--motion-quick);
+  font-family: inherit;
+}
+.theme-toggle:hover { background: var(--card); border-color: var(--border-strong); }
+.theme-toggle:active { transform: scale(0.94); }
+.theme-toggle .ico { display: inline-block; }
+
 @media (max-width: 640px) {
   header { padding: 36px 16px 24px; }
   header h1 { font-size: 26px; }
@@ -535,6 +570,10 @@ canvas#chart { width: 100%; height: 380px; display: block; }
 </style>
 </head>
 <body>
+
+<button class="theme-toggle" id="themeToggle" type="button" aria-label="テーマ切替" title="テーマ切替">
+  <span class="ico" id="themeIcon">◐</span>
+</button>
 
 <header>
   <span class="badge">Retirement &amp; FIRE</span>
@@ -1276,8 +1315,47 @@ canvas#chart { width: 100%; height: 380px; display: block; }
   }
 
   window.addEventListener('resize', scheduleUpdate);
-  // prefers-color-scheme 切替時にchart再描画（CSS変数の解決値が変わるため）
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', scheduleUpdate);
+
+  // テーマ切替 (auto → light → dark → auto ...)
+  const THEME_KEY = 'retirement-sim-theme';
+  const MODES = ['auto', 'light', 'dark'];
+  const ICONS = { auto: '◐', light: '☀', dark: '☾' };
+  const LABELS = { auto: 'Auto (システム)', light: 'Light', dark: 'Dark' };
+  const toggleBtn = document.getElementById('themeToggle');
+  const iconEl = document.getElementById('themeIcon');
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+
+  function currentPref() {
+    return document.documentElement.getAttribute('data-theme-pref') || 'auto';
+  }
+  function resolveTheme(pref) {
+    if (pref === 'dark') return 'dark';
+    if (pref === 'light') return 'light';
+    return mq.matches ? 'dark' : 'light';
+  }
+  function applyPref(pref, persist) {
+    document.documentElement.setAttribute('data-theme-pref', pref);
+    document.documentElement.setAttribute('data-theme', resolveTheme(pref));
+    iconEl.textContent = ICONS[pref];
+    toggleBtn.setAttribute('title', 'テーマ: ' + LABELS[pref]);
+    toggleBtn.setAttribute('aria-label', 'テーマ: ' + LABELS[pref] + ' (クリックで切替)');
+    if (persist) {
+      if (pref === 'auto') localStorage.removeItem(THEME_KEY);
+      else localStorage.setItem(THEME_KEY, pref);
+    }
+    scheduleUpdate();
+  }
+  // 初期アイコン反映 (head の init script で data-theme-pref は既に入っている)
+  applyPref(currentPref(), false);
+  toggleBtn.addEventListener('click', () => {
+    const i = MODES.indexOf(currentPref());
+    applyPref(MODES[(i + 1) % MODES.length], true);
+  });
+  // system の prefers-color-scheme 変化 → auto モードのときだけ追従 + chart 再描画
+  mq.addEventListener('change', () => {
+    if (currentPref() === 'auto') applyPref('auto', false);
+  });
+
   runSimulation();
 
 })();
