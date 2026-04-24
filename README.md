@@ -1,8 +1,14 @@
-# retirement-simulator
+# retirement-simulator (archived)
+
+> **Moved**: このリタイア/FIRE シミュレータは [Kanjo](https://fixed-cost.tz3156.workers.dev/simulator) (お金まわり統合ハブ) に統合された。今後のメンテはそちらで行う。ここに残しているのは履歴用の単一HTML。
+
+- Kanjo (移行先): https://fixed-cost.tz3156.workers.dev/simulator
+- Kanjo のソース: https://github.com/nick3156/fixed-cost (private)
+- 旧 公開URL: https://nick3156.github.io/retirement-simulator/ (GitHub Pages は当面残す)
+
+## もともと
 
 単一HTMLで動くリタイア/FIREシミュレータ。現在の資産・積立・想定利回り・インフレ率・年金条件から、リタイア後に資金が何歳まで持つかを可視化する。
-
-公開URL: https://nick3156.github.io/retirement-simulator/
 
 ## 特徴
 
@@ -11,6 +17,8 @@
 - 4%ルールに基づくFIRE達成ラインの自動算出
 - 目標資産額からの必要積立額の逆算（FV-of-annuity）
 - 入力値は localStorage に自動保存
+
+Kanjo 側では計算ロジックは完全踏襲し、UI と localStorage キー (`retirement-sim-values-v2`) も互換を維持。旧ブラウザで入力した値は Kanjo 側でも復元される。
 
 ## ファイル
 
